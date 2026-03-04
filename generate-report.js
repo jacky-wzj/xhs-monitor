@@ -56,7 +56,7 @@ for (const note of notes) {
 
 // 统计
 const totalLikes = notes.reduce((sum, n) => sum + (parseInt(n.likes) || 0), 0);
-const totalComments = notes.reduce((sum, n) => sum + (parseInt(n.commentTotal) || 0), 0);
+const totalComments = notes.reduce((sum, n) => sum + (n.commentList || n.comments || []).length, 0);
 const topNotes = [...notes].sort((a, b) => (parseInt(b.likes) || 0) - (parseInt(a.likes) || 0)).slice(0, 5);
 const authors = {};
 notes.forEach(n => { authors[n.author] = (authors[n.author] || 0) + 1; });
@@ -75,7 +75,7 @@ function truncate(str, len = 200) {
 
 function renderNote(note, index) {
   const likes = parseInt(note.likes) || 0;
-  const comments = note.commentList || [];
+  const comments = note.commentList || note.comments || [];
   const commentTotal = note.commentTotal || comments.length;
   const screenshotHtml = note._screenshotRel
     ? `<div class="screenshot"><img src="${escapeHtml(note._screenshotRel)}" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>`
