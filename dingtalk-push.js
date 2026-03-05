@@ -15,9 +15,9 @@ const crypto = require('crypto');
 
 // ─── 配置 ─────────────────────────────────────
 const DINGTALK_WEBHOOK =
-  'https://oapi.dingtalk.com/robot/send?access_token=f3762153d0b1631cf323bd0010aec5d0ba4548e11917fd3c48e9a7637660713b';
+  'https://oapi.dingtalk.com/robot/send?access_token=981bd8efefada41a00ce0668d8ef0f5ddcb9940039ea1ddc28c41b0e76232a1c';
 const DINGTALK_SECRET =
-  'SECd2d72abd2f03dca176a88f0f25a16b0477cbd0aeba1228f9d3cbb38a2054a26e';
+  'SEC49808d7c5389715320e41e1edb134eb69314e814462df6cfe11fdeed0947b4b8';
 const REPORT_BASE_URL = 'https://jacky-wzj.github.io/xhs-monitor/reports';
 
 // ─── 参数 ─────────────────────────────────────
