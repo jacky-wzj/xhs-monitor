@@ -160,7 +160,7 @@ function renderNegativeItem(item, index) {
   const likes = parseInt(note.likes) || 0;
   const noteDate = note.date || '';
 
-  // 帖子正文部分
+  // 帖子正文部分（负面帖子高亮展示，仅评论负面时也展示原文作为上下文）
   let postHtml = '';
   if (isNegativePost) {
     postHtml = `
@@ -168,6 +168,12 @@ function renderNegativeItem(item, index) {
         <div class="negative-badge">📝 帖子内容含负面</div>
         <div class="matched-keywords">关键词: ${contentMatches.map(k => `<span class="kw-tag">${escapeHtml(k)}</span>`).join(' ')}</div>
         <p>${highlightKeywords(truncate(note.content, 800), contentMatches)}</p>
+      </div>`;
+  } else if (negativeComments.length > 0 && note.content) {
+    postHtml = `
+      <div class="post-content">
+        <div class="context-badge">📄 帖子原文</div>
+        <p>${escapeHtml(truncate(note.content, 500))}</p>
       </div>`;
   }
 
@@ -304,6 +310,12 @@ const html = `<!DOCTYPE html>
       font-size: 0.85em;
       font-weight: 600;
       color: var(--red);
+      margin-bottom: 8px;
+    }
+    .context-badge {
+      font-size: 0.85em;
+      font-weight: 600;
+      color: var(--text-dim);
       margin-bottom: 8px;
     }
     .matched-keywords { margin: 6px 0; }
