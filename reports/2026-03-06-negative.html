@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奇奇学 差评监控 — 2026-03-06</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card-bg: #1a1a1a;
+      --card-border: #2a2a2a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --accent: #ff6b35;
+      --red: #ff4757;
+      --red-bg: rgba(255, 71, 87, 0.08);
+      --red-border: rgba(255, 71, 87, 0.25);
+      --yellow: #ffa502;
+      --green: #2ed573;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+    }
+    .header h1 { font-size: 1.8em; color: var(--red); margin-bottom: 8px; }
+    .header .date { color: var(--text-dim); font-size: 1.1em; }
+    .header .stats {
+      margin-top: 12px;
+      font-size: 0.95em;
+      color: var(--text-dim);
+    }
+    .header .stats strong { color: var(--red); }
+    .neg-card {
+      background: var(--card-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .neg-header { padding: 16px; border-bottom: 1px solid var(--card-border); }
+    .neg-title { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .neg-index {
+      background: var(--red);
+      color: white;
+      font-size: 0.8em;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .neg-title h3 { font-size: 1.1em; }
+    .neg-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85em; align-items: center; }
+    .neg-meta .author { color: var(--accent); }
+    .neg-meta .likes { color: var(--red); }
+    .neg-meta .date { color: var(--text-dim); }
+    .neg-meta a { color: var(--accent); text-decoration: none; font-size: 0.85em; }
+    .neg-meta a:hover { text-decoration: underline; }
+    .keyword-tag {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    .post-content { padding: 16px; }
+    .negative-post { background: var(--red-bg); }
+    .negative-badge {
+      font-size: 0.85em;
+      font-weight: 600;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+    .matched-keywords { margin: 6px 0; }
+    .kw-tag {
+      display: inline-block;
+      background: rgba(255, 71, 87, 0.15);
+      color: var(--red);
+      padding: 1px 6px;
+      border-radius: 3px;
+      font-size: 0.8em;
+      margin: 2px 3px 2px 0;
+    }
+    .post-content p { color: var(--text-dim); font-size: 0.9em; line-height: 1.7; }
+    mark {
+      background: rgba(255, 71, 87, 0.3);
+      color: var(--red);
+      padding: 0 2px;
+      border-radius: 2px;
+    }
+    .negative-comments { padding: 16px; border-top: 1px solid var(--card-border); }
+    .neg-comment {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .neg-comment-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.85em;
+    }
+    .comment-author { color: var(--accent); font-weight: 500; }
+    .comment-time { color: var(--text-dim); }
+    .comment-likes { color: var(--text-dim); }
+    .comment-body { font-size: 0.9em; color: var(--text); line-height: 1.6; }
+    .no-data {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+    }
+    .no-data-icon { font-size: 3em; margin-bottom: 16px; }
+    .no-data h2 { color: var(--green); margin-bottom: 8px; }
+    .footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-dim);
+      font-size: 0.8em;
+      border-top: 1px solid var(--card-border);
+      margin-top: 30px;
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.4em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚠️ 奇奇学 · 差评监控</h1>
+    <div class="date">2026-03-06</div>
+    <div class="stats">
+      共监控 <strong>17</strong> 条笔记，发现 <strong>6</strong> 条含负面内容
+      （差评帖 5 · 差评评论 5）
+    </div>
+  </div>
+
+  
+  
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#1</span>
+          <h3>奇奇学牛津树点读笔</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 与寻</span>
+          <span class="likes">❤️ 0</span>
+          
+          <span class="keyword-tag">奇奇学牛津树</span>
+          <a href="https://www.xiaohongshu.com/explore/69a584ba000000001a01fa91" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容含负面</div>
+        <div class="matched-keywords">关键词: <span class="kw-tag">吐槽</span></div>
+        <p><mark>吐槽</mark>一下奇奇学牛津树level2-A new dog书第13页</p>
+      </div>
+      
+      <div class="negative-comments">
+        <div class="negative-badge">💬 差评评论 (1)</div>
+        
+          <div class="neg-comment">
+            <div class="neg-comment-header">
+              <span class="comment-author">@♥🌟小星光</span>
+              <span class="comment-time">3天前浙江</span>
+              <span class="comment-likes">👍赞</span>
+            </div>
+            <div class="comment-body">
+              <mark>没声音</mark>吗？
+            </div>
+            <div class="matched-keywords">命中: <span class="kw-tag">没声音</span></div>
+          </div>
+        
+      </div>
+    </div>
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#2</span>
+          <h3>奇奇学牛津树开箱</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 Joyce25</span>
+          <span class="likes">❤️ 19</span>
+          
+          <span class="keyword-tag">奇奇学牛津树</span>
+          <a href="https://www.xiaohongshu.com/explore/69144661000000000d038ac1" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容含负面</div>
+        <div class="matched-keywords">关键词: <span class="kw-tag">差</span></div>
+        <p>犹豫几日还是在首发入手了奇奇学牛津树大全套
+全部产品如图，目前是拓展1+到9，自拼1-6，有点读笔，打卡表，四本果冻贴和floopy钥匙扣
+说实话在读牛津树的故事之前，我对他这个画风实在无感，但他口碑确实好，所以在小彼恩绝版清仓的时候买了1+给孩子看，孩子会被故事吸引，就开始关注奇奇学的上架
+1️⃣奇奇学点读笔，质感和音效我认为跟市面上主流的几支笔大<mark>差</mark>不<mark>差</mark>，它只支持点读牛津树所以是本地笔也影响不大，孩子目前对floopy形象很有新鲜感
+2️⃣我认为奇奇学牛津树最应该升级的是解说点读包，他配的童老师解说从低级别到高级别中文会越来越少，当然有适用人群，而作为给孩子启蒙较早的家长是希望纯英语阅读的，解说拓展也希望是纯英语的由易到难，类似于一些博主的牛津树带读，低级别简单互动，高级别丰富拓展，这样对从小龄开始爬树的家庭一定是更有吸引力的。含有中文的讲解更适合已经中文强势需要靠听懂来吸引孩子上树的家庭，但是如果年龄已经大一点了，我觉得目前童老师的讲解和一堆前后的音效有点效率低下了。
+若日后能有英文讲解点读包的更新应该在口碑上和小彼恩不会是五五分的现状了
+3️⃣是否现在入全套，如果孩子年龄到了，可以用，他不<mark>差</mark>，只是目前看我没有觉得他比小彼恩更好，增加的讲解对我们价值不大。如果孩子年龄没到可以观望，说是首发价格好以后不送笔这那的，他也一定是符合当时市场价值的东西，如果点读包更新的更好了贵点家长也愿意掏钱，如果一段时间反馈一般，就会参加平台活动了
+十年版权，不可能一直是开始的样子，希望有更新的时候我们第一批用户还使用的到
+#英语启蒙绘本 #宝宝英文启蒙绘本 #牛津自然拼读 #幼儿英语启蒙 #原版英语教材 #分级阅读 #原版绘本#喜马拉雅 #英文绘本 #点读笔</p>
+      </div>
+      
+    </div>
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#3</span>
+          <h3>准备给宝宝做英语启蒙，现在有点纠结</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 奥特曼打小乖</span>
+          <span class="likes">❤️ 6</span>
+          
+          <span class="keyword-tag">奇奇学点读笔</span>
+          <a href="https://www.xiaohongshu.com/explore/698585920000000015022cb3" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容含负面</div>
+        <div class="matched-keywords">关键词: <span class="kw-tag">不能用</span></div>
+        <p>失去了牛津树的毛毛虫🐛点读笔还值得买吗？
+家里目前有巧虎的点读笔但是宝宝不爱点读绘本，喜欢让我读……
+有一本豚小萌的大百科宝宝很爱看，但是之前买了配套的点读笔，一直连接不上我就退了……
+现在又想买毛毛虫了，有没有买过的姐妹来说一下……现在牛津树<mark>不能用</mark>的话，还要单独再买奇奇学的点读笔和牛津树吗？
+	
+#毛毛虫点读笔 #双语宝宝 #英语启蒙绘本 #创造英语语言环境 #少儿英语</p>
+      </div>
+      
+      <div class="negative-comments">
+        <div class="negative-badge">💬 差评评论 (1)</div>
+        
+          <div class="neg-comment">
+            <div class="neg-comment-header">
+              <span class="comment-author">@北雁南飞</span>
+              <span class="comment-time">02-06上海</span>
+              <span class="comment-likes">👍1</span>
+            </div>
+            <div class="comment-body">
+              除了牛津树还有很多很不错的绘本可以点，我买毛毛虫就不是为了牛津树，<mark><mark>太贵</mark>了</mark>。
+            </div>
+            <div class="matched-keywords">命中: <span class="kw-tag">太贵了</span> <span class="kw-tag">太贵</span></div>
+          </div>
+        
+      </div>
+    </div>
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#4</span>
+          <h3>奇奇学点读笔怎么用啊？</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 当妈在成长</span>
+          <span class="likes">❤️ 0</span>
+          
+          <span class="keyword-tag">奇奇学点读笔</span>
+          <a href="https://www.xiaohongshu.com/explore/68615a3300000000110025c8" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容含负面</div>
+        <div class="matched-keywords">关键词: <span class="kw-tag">没反应</span></div>
+        <p>很早以前买了点读笔和卡片，突然要用了，点哪儿都<mark>没反应</mark>。有知道怎么用的吗
+#点读笔 #牛津树#牛津树点读笔</p>
+      </div>
+      
+      <div class="negative-comments">
+        <div class="negative-badge">💬 差评评论 (2)</div>
+        
+          <div class="neg-comment">
+            <div class="neg-comment-header">
+              <span class="comment-author">@当妈在成长</span>
+              <span class="comment-time">2025-07-02上海</span>
+              <span class="comment-likes">👍赞</span>
+            </div>
+            <div class="comment-body">
+              问了客服，这个笔<mark>点不了</mark>这个卡片。另外有一套书可以点
+            </div>
+            <div class="matched-keywords">命中: <span class="kw-tag">点不了</span></div>
+          </div>
+        
+          <div class="neg-comment">
+            <div class="neg-comment-header">
+              <span class="comment-author">@毛毛</span>
+              <span class="comment-time">2025-07-12广东</span>
+              <span class="comment-likes">👍赞</span>
+            </div>
+            <div class="comment-body">
+              谢谢姐妹，我也说怎么<mark>点不了</mark>
+            </div>
+            <div class="matched-keywords">命中: <span class="kw-tag">点不了</span></div>
+          </div>
+        
+      </div>
+    </div>
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#5</span>
+          <h3>喜马拉雅牛津树拓展阅读L1亲子阅读第二天</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 Mae</span>
+          <span class="likes">❤️ 5</span>
+          
+          <span class="keyword-tag">奇奇学点读笔</span>
+          <a href="https://www.xiaohongshu.com/explore/68f782a40000000007035615" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      
+      <div class="negative-comments">
+        <div class="negative-badge">💬 差评评论 (1)</div>
+        
+          <div class="neg-comment">
+            <div class="neg-comment-header">
+              <span class="comment-author">@默</span>
+              <span class="comment-time">2025-11-02海南</span>
+              <span class="comment-likes">👍赞</span>
+            </div>
+            <div class="comment-body">
+              姐妹 这个笔是不是只能点牛津树 其他书<mark>点不了</mark>
+            </div>
+            <div class="matched-keywords">命中: <span class="kw-tag">点不了</span></div>
+          </div>
+        
+      </div>
+    </div>
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#6</span>
+          <h3>奇奇学牛津树</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 不是迪迪</span>
+          <span class="likes">❤️ 8</span>
+          
+          <span class="keyword-tag">奇奇学点读笔</span>
+          <a href="https://www.xiaohongshu.com/explore/692c106c000000001e03a763" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容含负面</div>
+        <div class="matched-keywords">关键词: <span class="kw-tag">差</span></div>
+        <p>买了奇奇学的牛津树，因为原来有小彼恩的牛津树拓展阅读1+，所以奇奇学买的拓展阅读2-9，自然拼读一并买了1-6，单独买的点读笔，省的纠结了。感觉和小彼恩没什么太大区别，孩子读的好与不好不<mark>差</mark>这点<mark>差</mark>距#奇奇学牛津树 #奇奇学点读笔 #毛毛虫点读笔 #小彼恩牛津树</p>
+      </div>
+      
+      <div class="negative-comments">
+        <div class="negative-badge">💬 差评评论 (1)</div>
+        
+          <div class="neg-comment">
+            <div class="neg-comment-header">
+              <span class="comment-author">@不是迪迪</span>
+              <span class="comment-time">2025-11-30上海</span>
+              <span class="comment-likes">👍赞</span>
+            </div>
+            <div class="comment-body">
+              是的，没差多少，孩子学的好与不好根本不差那点，而且小彼恩最近出的奖学金活动也有点让我<mark>失望</mark>
+            </div>
+            <div class="matched-keywords">命中: <span class="kw-tag">失望</span></div>
+          </div>
+        
+      </div>
+    </div>
+
+  <div class="footer">
+    <p>Generated by xhs-monitor (negative) · 2026-03-06T10:42:04.322Z</p>
+    <p>关键词库: 76 个（强 65 + 弱 11） · 数据来源：小红书</p>
+  </div>
+</body>
+</html>
