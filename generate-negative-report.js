@@ -122,6 +122,12 @@ async function analyzeSentiment(notes) {
   }
 
   // 分批处理（每批不超过 10 条，避免上下文过长）
+  // 提取搜索关键词作为监控目标
+  const targetKeywords = [...new Set(notes.map(n => n.keyword).filter(Boolean))];
+  const targetDesc = targetKeywords.length > 0
+    ? targetKeywords.join('、')
+    : '奇奇学';
+
   const BATCH_SIZE = 10;
   const allResults = [];
 
@@ -130,21 +136,21 @@ async function analyzeSentiment(notes) {
     const batchNotes = notes.slice(batch, batch + BATCH_SIZE);
     const batchStart = batch;
 
-    const prompt = `你是一个产品舆情分析师，负责分析"奇奇学"（一款儿童英语启蒙产品，含点读笔和牛津树分级阅读绘本）的用户口碑。
+    const prompt = `你是一个产品舆情分析师，当前监控目标是"${targetDesc}"相关产品（一款儿童英语启蒙产品，含点读笔和牛津树分级阅读绘本）。
 
-以下是从小红书抓取的帖子内容和评论。请逐条分析，判断帖子正文和每条评论是否对"奇奇学"产品/服务表达了**明确的负面情绪**。
+以下是从小红书抓取的帖子内容和评论。请逐条分析，判断帖子正文和每条评论是否对**监控目标（${targetDesc}）**的产品/服务表达了**明确的负面情绪**。
 
 判定标准——只有以下情况才算"负面"：
-✅ 明确表达不满、抱怨、吐槽（如"太坑了"、"后悔买了"、"质量差"）
-✅ 描述产品故障/缺陷（如"点不了"、"没声音"、"闪退"）
-✅ 明确表达退货/退款意愿
-✅ 直接贬低奇奇学产品
+✅ 对"${targetDesc}"产品明确表达不满、抱怨、吐槽（如"太坑了"、"后悔买了"、"质量差"）
+✅ 描述"${targetDesc}"产品故障/缺陷（如"点不了"、"没声音"、"闪退"）
+✅ 对"${targetDesc}"明确表达退货/退款意愿
+✅ 直接贬低"${targetDesc}"产品
 
 以下情况**不算负面**，请排除：
+❌ 对其他品牌/竞品的负面评价（如吐槽小彼恩溢价、毛毛虫不好用等，这些不是对${targetDesc}的负面）
 ❌ 单纯提问/咨询（如"能不能点其他书？"）
 ❌ 潜在担忧/疑虑（如"不知道值不值"）
 ❌ 客观对比/中性讨论
-❌ 对其他品牌的评价
 ❌ 口语化表达（如"差不多"、"爱的不行"）
 ❌ 正面体验、推荐、打卡
 
