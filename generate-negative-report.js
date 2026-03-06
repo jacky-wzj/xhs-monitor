@@ -1,16 +1,17 @@
 #!/usr/bin/env node
 /**
- * 小红书舆情监控 — 差评报告生成器
+ * 小红书舆情监控 — 差评报告生成器（AI 语义分析版）
  *
- * 筛选逻辑：
- * 1. 笔记正文包含负面关键词 → 整条笔记展示
- * 2. 笔记评论包含负面关键词 → 展示笔记标题 + 差评评论
+ * 用 LLM 判断帖子和评论的情感倾向，而非关键词匹配。
+ * 通过 OpenAI-compatible API 批量分析。
  *
  * 用法：node generate-negative-report.js [日期] [数据目录]
  */
 
 const fs = require('fs');
 const path = require('path');
+const https = require('https');
+const http = require('http');
 
 const date = process.argv[2] || new Date().toISOString().slice(0, 10);
 const xhsDir = process.argv[3] || path.join(__dirname, '..', 'xiaohongshu');
@@ -27,111 +28,194 @@ if (!fs.existsSync(dataFile)) {
 const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
 const notes = data.notes || [];
 
-// ─── 负面关键词（精确短语，避免单字误判）─────────────
-// 分为"强负面"和"弱负面"
-// 强负面：直接命中
-// 弱负面：需要排除误判模式后才算命中
-const STRONG_NEGATIVE = [
-  // 产品差评
-  '垃圾', '坑爹', '骗子', '骗人', '忽悠', '割韭菜', '智商税',
-  '不好用', '不值', '不推荐', '不建议', '不靠谱',
-  '难用', '太差', '太烂', '很差', '好差', '超差', '质量差',
-  // 退换/售后
-  '退款', '退货', '退钱', '投诉', '维权', '售后差', '客服差',
-  // 功能问题
-  '闪退', '卡顿', '死机', '崩溃', '打不开', '用不了', '不能用',
-  '没反应', '没声音', '不识别', '识别不了', '点不了', '无法使用',
-  // 内容质量
-  '翻译差', '翻译错', '发音不准', '发音错', '内容少', '内容差',
-  '粗糙', '敷衍', '不准确', '错误多', '错别字',
-  // 价格（精确短语）
-  '太贵了', '好贵', '涨价', '变相收费', '隐性收费',
-  '性价比低', '不值这个价',
-  // 情感负面
-  '后悔', '上当', '踩雷', '避雷', '拔草',
-  '恶心', '坑钱', '吃灰',
-];
-
-// 弱负面：容易误判的词，需要排除常见无害用法
-const WEAK_NEGATIVE = [
-  { keyword: '差', excludePatterns: ['差不多', '差一点', '没差', '相差', '差别', '时差', '出差', '差异', '温差', '落差'] },
-  { keyword: '不好', excludePatterns: ['不好意思', '不好说', '好与不好', '好不好', '不好吗'] },
-  { keyword: '不行', excludePatterns: ['的不行', '得不行', '不行了吧'] },  // "爱的不行" = 很喜欢
-  { keyword: '失望', excludePatterns: ['不失望', '没失望'] },
-  { keyword: '吐槽', excludePatterns: [] },  // 吐槽有时是轻松语境，但保留
-  { keyword: '无语', excludePatterns: [] },
-  { keyword: '不如', excludePatterns: ['不如早点', '不如买', '不如直接', '不如说'] },  // "还不如早点买" = 推荐购买
-  { keyword: '浪费', excludePatterns: ['不浪费', '没浪费'] },
-  { keyword: '太贵', excludePatterns: [] },
-  { keyword: '收费', excludePatterns: ['免费', '不收费'] },
-  { keyword: '续费', excludePatterns: ['免续费'] },
-];
-
-function escapeRegex(str) {
-  return str.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+if (notes.length === 0) {
+  console.log('ℹ️  无笔记数据，跳过分析');
+  process.exit(0);
 }
 
-function matchNegativeKeywords(text) {
-  if (!text) return [];
-  const matches = [];
-
-  // 强负面：直接匹配
-  for (const kw of STRONG_NEGATIVE) {
-    if (text.includes(kw)) {
-      matches.push(kw);
-    }
-  }
-
-  // 弱负面：排除误判后匹配
-  for (const { keyword, excludePatterns } of WEAK_NEGATIVE) {
-    if (!text.includes(keyword)) continue;
-
-    // 检查是否被排除模式覆盖
-    let excluded = false;
-    for (const pattern of excludePatterns) {
-      if (text.includes(pattern)) {
-        excluded = true;
-        break;
+// ─── AI API 配置 ─────────────────────────────────
+// 使用 qwen（便宜快速）做情感分析
+const API_BASE = 'https://dashscope.aliyuncs.com/compatible-mode/v1';
+const API_KEY = process.env.DASHSCOPE_API_KEY || (() => {
+  // 从 openclaw.json 读取 qwen 配置
+  try {
+    const config = JSON.parse(fs.readFileSync(path.join(process.env.HOME, '.openclaw/openclaw.json'), 'utf8'));
+    const providers = config?.models?.providers || {};
+    for (const [key, val] of Object.entries(providers)) {
+      if (key.includes('qwen') || (val.baseUrl && val.baseUrl.includes('dashscope'))) {
+        return val.apiKey;
       }
     }
-    if (!excluded) {
-      matches.push(keyword);
-    }
-  }
+  } catch {}
+  return '';
+})();
+const MODEL = 'qwen-turbo-latest';
 
-  return [...new Set(matches)];
-}
+// ─── API 调用 ─────────────────────────────────
 
-// ─── 筛选差评内容 ─────────────────────────────────
-const negativeResults = [];
-
-for (const note of notes) {
-  const contentText = (note.content || '') + ' ' + (note.title || '');
-  const contentMatches = matchNegativeKeywords(contentText);
-  const comments = note.commentList || note.comments || [];
-
-  const negativeComments = [];
-  for (const c of comments) {
-    const commentText = c.content || '';
-    const commentMatches = matchNegativeKeywords(commentText);
-    if (commentMatches.length > 0) {
-      negativeComments.push({ ...c, _matchedKeywords: commentMatches });
-    }
-  }
-
-  if (contentMatches.length > 0 || negativeComments.length > 0) {
-    negativeResults.push({
-      note,
-      contentMatches,
-      negativeComments,
-      isNegativePost: contentMatches.length > 0,
+function callLLM(messages) {
+  return new Promise((resolve, reject) => {
+    const body = JSON.stringify({
+      model: MODEL,
+      messages,
+      temperature: 0.1,
+      max_tokens: 4000,
     });
-  }
+
+    const url = new URL(`${API_BASE}/chat/completions`);
+    const isHttps = url.protocol === 'https:';
+    const options = {
+      hostname: url.hostname,
+      port: url.port || (isHttps ? 443 : 80),
+      path: url.pathname + url.search,
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${API_KEY}`,
+        'Content-Length': Buffer.byteLength(body),
+      },
+    };
+
+    const lib = isHttps ? https : http;
+    const req = lib.request(options, (res) => {
+      let data = '';
+      res.on('data', (chunk) => (data += chunk));
+      res.on('end', () => {
+        try {
+          const json = JSON.parse(data);
+          if (json.error) {
+            reject(new Error(`API error: ${json.error.message || JSON.stringify(json.error)}`));
+          } else {
+            resolve(json.choices?.[0]?.message?.content || '');
+          }
+        } catch (e) {
+          reject(new Error(`Parse error: ${data.substring(0, 200)}`));
+        }
+      });
+    });
+    req.on('error', reject);
+    req.setTimeout(60000, () => { req.destroy(); reject(new Error('Request timeout')); });
+    req.write(body);
+    req.end();
+  });
 }
 
-console.log(`📊 总笔记: ${notes.length}, 含负面内容: ${negativeResults.length}`);
-console.log(`  - 差评帖子: ${negativeResults.filter(r => r.isNegativePost).length}`);
-console.log(`  - 含差评评论: ${negativeResults.filter(r => r.negativeComments.length > 0).length}`);
+// ─── 批量情感分析 ─────────────────────────────────
+
+async function analyzeSentiment(notes) {
+  // 构建分析数据：每条帖子的标题、正文、评论
+  const items = [];
+  for (let i = 0; i < notes.length; i++) {
+    const note = notes[i];
+    const comments = note.commentList || note.comments || [];
+    const commentTexts = comments
+      .filter(c => c.content && c.content.trim())
+      .map((c, ci) => `    评论${ci + 1} (@${c.author || '匿名'}): ${c.content.substring(0, 200)}`)
+      .join('\n');
+
+    items.push(
+      `[帖子${i + 1}]\n` +
+      `  标题: ${note.title || '无标题'}\n` +
+      `  正文: ${(note.content || '').substring(0, 400)}\n` +
+      (commentTexts ? `  评论:\n${commentTexts}` : '  评论: 无')
+    );
+  }
+
+  // 分批处理（每批不超过 10 条，避免上下文过长）
+  const BATCH_SIZE = 10;
+  const allResults = [];
+
+  for (let batch = 0; batch < items.length; batch += BATCH_SIZE) {
+    const batchItems = items.slice(batch, batch + BATCH_SIZE);
+    const batchNotes = notes.slice(batch, batch + BATCH_SIZE);
+    const batchStart = batch;
+
+    const prompt = `你是一个产品舆情分析师，负责分析"奇奇学"（一款儿童英语启蒙产品，含点读笔和牛津树分级阅读绘本）的用户口碑。
+
+以下是从小红书抓取的帖子内容和评论。请逐条分析，判断：
+1. 帖子正文是否对"奇奇学"产品/服务表达了负面情绪（如不满、抱怨、吐槽、差评、质量问题、退货、售后差等）
+2. 每条评论是否对"奇奇学"表达了负面情绪
+
+注意：
+- 只关注对"奇奇学"产品的负面评价，不关注对其他品牌的评价
+- "差不多"、"爱的不行"等口语化表达不是负面
+- 用户分享正面体验、推荐购买、打卡记录等都不算负面
+- 客观对比分析（如 vs 竞品）不算负面，除非明确贬低奇奇学
+- 如果帖子本身是广告/软文，评论中质疑其真实性也算负面
+
+你必须严格按以下 JSON 格式输出，不要输出任何其他内容，不要用 markdown 代码块包裹。
+noteIndex 必须使用本批次内的编号（从 1 开始），即帖子1 → noteIndex:1，帖子2 → noteIndex:2。
+[
+  {
+    "noteIndex": <本批次内的帖子编号，帖子1=1，帖子2=2，以此类推>,
+    "postSentiment": "positive 或 neutral 或 negative",
+    "postReason": "简要说明判断理由（1句话）",
+    "negativeComments": [
+      {
+        "commentIndex": <评论编号，评论1=1，评论2=2>,
+        "reason": "简要说明为什么是负面（1句话）"
+      }
+    ]
+  }
+]
+
+只输出有负面内容的帖子（postSentiment 为 negative 或有 negativeComments 不为空的）。
+如果所有帖子都是正面或中性，输出空数组 []。
+不要输出 JSON 以外的任何文字。
+
+以下是待分析的内容：
+
+${batchItems.join('\n\n')}`;
+
+    console.log(`  🤖 分析第 ${batchStart + 1}-${batchStart + batchItems.length} 条...`);
+
+    try {
+      const response = await callLLM([
+        { role: 'system', content: '你是一个精准的产品舆情分析师。只输出 JSON，不输出其他内容。' },
+        { role: 'user', content: prompt },
+      ]);
+
+      // 提取 JSON
+      let jsonStr = response;
+      const jsonMatch = response.match(/```(?:json)?\s*([\s\S]*?)```/) || response.match(/(\[[\s\S]*\])/);
+      if (jsonMatch) {
+        jsonStr = jsonMatch[1] || jsonMatch[0];
+      }
+
+      let batchResults;
+      try {
+        batchResults = JSON.parse(jsonStr.trim());
+      } catch (parseErr) {
+        console.error(`  ⚠️  JSON 解析失败，尝试修复...`);
+        // 尝试修复常见问题
+        const fixedJson = jsonStr.trim().replace(/,\s*]/g, ']').replace(/,\s*}/g, '}');
+        batchResults = JSON.parse(fixedJson);
+      }
+
+      if (!Array.isArray(batchResults)) {
+        console.error(`  ⚠️  AI 返回非数组格式，跳过本批`);
+        continue;
+      }
+
+      // 调整索引为全局索引（AI 返回的 noteIndex 是批次内的 1-based）
+      for (const r of batchResults) {
+        if (r.noteIndex != null) {
+          // 判断 AI 返回的是批次内编号还是全局编号
+          if (r.noteIndex <= batchItems.length) {
+            // 批次内编号（期望行为）：加 batchStart 转全局
+            r.noteIndex = r.noteIndex + batchStart;
+          }
+          // 否则 AI 已返回全局编号，直接使用
+          allResults.push(r);
+        }
+      }
+    } catch (err) {
+      console.error(`  ⚠️  批次分析失败: ${err.message}`);
+    }
+  }
+
+  return allResults;
+}
 
 // ─── HTML 生成 ─────────────────────────────────
 
@@ -140,36 +224,27 @@ function escapeHtml(str) {
   return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
 
-function highlightKeywords(text, keywords) {
-  if (!text || !keywords.length) return escapeHtml(text);
-  let result = escapeHtml(text);
-  for (const kw of keywords) {
-    const escaped = escapeHtml(kw);
-    result = result.replace(new RegExp(escapeRegex(escaped), 'g'), `<mark>${escaped}</mark>`);
-  }
-  return result;
-}
-
 function truncate(str, len = 500) {
   if (!str) return '';
   return str.length > len ? str.substring(0, len) + '...' : str;
 }
 
-function renderNegativeItem(item, index) {
-  const { note, contentMatches, negativeComments, isNegativePost } = item;
+function renderNegativeItem(note, analysis, index) {
   const likes = parseInt(note.likes) || 0;
   const noteDate = note.date || '';
+  const comments = note.commentList || note.comments || [];
+  const negCommentIndices = new Set((analysis.negativeComments || []).map(c => c.commentIndex));
 
-  // 帖子正文部分（负面帖子高亮展示，仅评论负面时也展示原文作为上下文）
+  // 帖子正文
   let postHtml = '';
-  if (isNegativePost) {
+  if (analysis.postSentiment === 'negative') {
     postHtml = `
       <div class="post-content negative-post">
-        <div class="negative-badge">📝 帖子内容含负面</div>
-        <div class="matched-keywords">关键词: ${contentMatches.map(k => `<span class="kw-tag">${escapeHtml(k)}</span>`).join(' ')}</div>
-        <p>${highlightKeywords(truncate(note.content, 800), contentMatches)}</p>
+        <div class="negative-badge">📝 帖子内容负面</div>
+        <div class="ai-reason">🤖 ${escapeHtml(analysis.postReason)}</div>
+        <p>${escapeHtml(truncate(note.content, 800))}</p>
       </div>`;
-  } else if (negativeComments.length > 0 && note.content) {
+  } else if ((analysis.negativeComments || []).length > 0 && note.content) {
     postHtml = `
       <div class="post-content">
         <div class="context-badge">📄 帖子原文</div>
@@ -177,25 +252,27 @@ function renderNegativeItem(item, index) {
       </div>`;
   }
 
-  // 差评评论部分
+  // 差评评论
   let commentsHtml = '';
-  if (negativeComments.length > 0) {
+  const negComments = (analysis.negativeComments || []);
+  if (negComments.length > 0) {
     commentsHtml = `
       <div class="negative-comments">
-        <div class="negative-badge">💬 差评评论 (${negativeComments.length})</div>
-        ${negativeComments.map(c => `
-          <div class="neg-comment">
-            <div class="neg-comment-header">
-              <span class="comment-author">@${escapeHtml(c.author)}</span>
-              ${c.time ? `<span class="comment-time">${escapeHtml(c.time)}</span>` : ''}
-              ${c.likes && c.likes !== '0' ? `<span class="comment-likes">👍${c.likes}</span>` : ''}
-            </div>
-            <div class="comment-body">
-              ${highlightKeywords(truncate(c.content, 300), c._matchedKeywords)}
-            </div>
-            <div class="matched-keywords">命中: ${c._matchedKeywords.map(k => `<span class="kw-tag">${escapeHtml(k)}</span>`).join(' ')}</div>
-          </div>
-        `).join('')}
+        <div class="negative-badge">💬 负面评论 (${negComments.length})</div>
+        ${negComments.map(nc => {
+          const c = comments[nc.commentIndex - 1];
+          if (!c) return '';
+          return `
+            <div class="neg-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@${escapeHtml(c.author)}</span>
+                ${c.time ? `<span class="comment-time">${escapeHtml(c.time)}</span>` : ''}
+                ${c.likes && c.likes !== '0' ? `<span class="comment-likes">👍${c.likes}</span>` : ''}
+              </div>
+              <div class="comment-body">${escapeHtml(truncate(c.content, 300))}</div>
+              <div class="ai-reason">🤖 ${escapeHtml(nc.reason)}</div>
+            </div>`;
+        }).join('')}
       </div>`;
   }
 
@@ -219,15 +296,19 @@ function renderNegativeItem(item, index) {
     </div>`;
 }
 
-const noDataHtml = negativeResults.length === 0
-  ? `<div class="no-data">
-      <div class="no-data-icon">🎉</div>
-      <h2>今日无差评内容</h2>
-      <p>共监控 ${notes.length} 条笔记，未发现负面关键词。</p>
-    </div>`
-  : '';
+function generateHtml(notes, negativeResults) {
+  const negPostCount = negativeResults.filter(r => r.analysis.postSentiment === 'negative').length;
+  const negCommentCount = negativeResults.filter(r => (r.analysis.negativeComments || []).length > 0).length;
 
-const html = `<!DOCTYPE html>
+  const noDataHtml = negativeResults.length === 0
+    ? `<div class="no-data">
+        <div class="no-data-icon">🎉</div>
+        <h2>今日无差评内容</h2>
+        <p>AI 分析了 ${notes.length} 条笔记，未发现针对奇奇学的负面评价。</p>
+      </div>`
+    : '';
+
+  return `<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
   <meta charset="UTF-8">
@@ -244,7 +325,6 @@ const html = `<!DOCTYPE html>
       --red: #ff4757;
       --red-bg: rgba(255, 71, 87, 0.08);
       --red-border: rgba(255, 71, 87, 0.25);
-      --yellow: #ffa502;
       --green: #2ed573;
     }
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -271,6 +351,12 @@ const html = `<!DOCTYPE html>
       color: var(--text-dim);
     }
     .header .stats strong { color: var(--red); }
+    .header .method {
+      margin-top: 6px;
+      font-size: 0.8em;
+      color: var(--text-dim);
+      opacity: 0.7;
+    }
     .neg-card {
       background: var(--card-bg);
       border: 1px solid var(--red-border);
@@ -318,23 +404,16 @@ const html = `<!DOCTYPE html>
       color: var(--text-dim);
       margin-bottom: 8px;
     }
-    .matched-keywords { margin: 6px 0; }
-    .kw-tag {
-      display: inline-block;
-      background: rgba(255, 71, 87, 0.15);
-      color: var(--red);
-      padding: 1px 6px;
-      border-radius: 3px;
-      font-size: 0.8em;
-      margin: 2px 3px 2px 0;
+    .ai-reason {
+      font-size: 0.85em;
+      color: var(--accent);
+      margin: 6px 0;
+      padding: 4px 8px;
+      background: rgba(255, 107, 53, 0.08);
+      border-radius: 4px;
+      border-left: 3px solid var(--accent);
     }
     .post-content p { color: var(--text-dim); font-size: 0.9em; line-height: 1.7; }
-    mark {
-      background: rgba(255, 71, 87, 0.3);
-      color: var(--red);
-      padding: 0 2px;
-      border-radius: 2px;
-    }
     .negative-comments { padding: 16px; border-top: 1px solid var(--card-border); }
     .neg-comment {
       background: var(--red-bg);
@@ -381,20 +460,51 @@ const html = `<!DOCTYPE html>
     <div class="date">${date}</div>
     <div class="stats">
       共监控 <strong>${notes.length}</strong> 条笔记，发现 <strong>${negativeResults.length}</strong> 条含负面内容
-      （差评帖 ${negativeResults.filter(r => r.isNegativePost).length} · 差评评论 ${negativeResults.filter(r => r.negativeComments.length > 0).length}）
+      （差评帖 ${negPostCount} · 含负面评论 ${negCommentCount}）
     </div>
+    <div class="method">分析方式：AI 语义分析（${MODEL}）</div>
   </div>
 
   ${noDataHtml}
-  ${negativeResults.map((item, i) => renderNegativeItem(item, i + 1)).join('')}
+  ${negativeResults.map((item, i) => renderNegativeItem(item.note, item.analysis, i + 1)).join('')}
 
   <div class="footer">
-    <p>Generated by xhs-monitor (negative) · ${new Date().toISOString()}</p>
-    <p>关键词库: ${STRONG_NEGATIVE.length + WEAK_NEGATIVE.length} 个（强 ${STRONG_NEGATIVE.length} + 弱 ${WEAK_NEGATIVE.length}） · 数据来源：小红书</p>
+    <p>Generated by xhs-monitor (AI sentiment) · ${new Date().toISOString()}</p>
+    <p>分析模型: ${MODEL} · 数据来源：小红书</p>
   </div>
 </body>
 </html>`;
+}
 
-const outputFile = path.join(outputDir, `${date}-negative.html`);
-fs.writeFileSync(outputFile, html, 'utf8');
-console.log(`✅ 差评报告已生成: ${outputFile}`);
+// ─── 主流程 ─────────────────────────────────
+
+(async () => {
+  if (!API_KEY) {
+    console.error('❌ 未找到 API Key，请设置 DASHSCOPE_API_KEY 环境变量或在 openclaw.json 配置 qwen provider');
+    process.exit(1);
+  }
+
+  console.log(`📊 开始 AI 情感分析: ${notes.length} 条笔记`);
+
+  const analysisResults = await analyzeSentiment(notes);
+  console.log(`  📋 AI 识别出 ${analysisResults.length} 条含负面内容`);
+
+  // 匹配回笔记数据
+  const negativeResults = [];
+  for (const analysis of analysisResults) {
+    const noteIdx = analysis.noteIndex - 1;  // AI 输出从 1 开始
+    if (noteIdx >= 0 && noteIdx < notes.length) {
+      negativeResults.push({ note: notes[noteIdx], analysis });
+    }
+  }
+
+  console.log(`📊 总笔记: ${notes.length}, 含负面内容: ${negativeResults.length}`);
+  console.log(`  - 差评帖子: ${negativeResults.filter(r => r.analysis.postSentiment === 'negative').length}`);
+  console.log(`  - 含负面评论: ${negativeResults.filter(r => (r.analysis.negativeComments || []).length > 0).length}`);
+
+  // 生成 HTML
+  const html = generateHtml(notes, negativeResults);
+  const outputFile = path.join(outputDir, `${date}-negative.html`);
+  fs.writeFileSync(outputFile, html, 'utf8');
+  console.log(`✅ 差评报告已生成: ${outputFile}`);
+})();
