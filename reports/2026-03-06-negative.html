@@ -112,6 +112,18 @@
       padding: 12px;
       margin-top: 10px;
     }
+    .normal-comment {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .neg-label {
+      color: var(--red);
+      font-size: 0.8em;
+      font-weight: 600;
+    }
     .neg-comment-header {
       display: flex;
       gap: 10px;
@@ -150,7 +162,7 @@
     <div class="date">2026-03-06</div>
     <div class="stats">
       共监控 <strong>17</strong> 条笔记，发现 <strong>5</strong> 条含负面内容
-      （差评帖 2 · 含负面评论 4）
+      （差评帖 4 · 含负面评论 5）
     </div>
     <div class="method">分析方式：AI 语义分析（qwen-turbo-latest）</div>
   </div>
@@ -179,16 +191,37 @@
       </div>
       
       <div class="negative-comments">
-        <div class="negative-badge">💬 负面评论 (1)</div>
+        <div class="negative-badge">💬 评论区 (3 条，1 条负面)</div>
         
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@♥🌟小星光</span>
+                <span class="comment-time">3天前浙江</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">没声音吗？</div>
+              
+            </div>
             <div class="neg-comment">
               <div class="neg-comment-header">
                 <span class="comment-author">@与寻</span>
                 <span class="comment-time">2天前山东</span>
                 <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
               </div>
               <div class="comment-body">对，就是这一页没有声音，然后点读笔就卡住了</div>
               <div class="ai-reason">🤖 明确指出点读笔在该页卡住，属于产品故障描述。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@奇奇学售后服务</span>
+                <span class="comment-time">2天前上海</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">亲我看到啦，我来为您处理哈</div>
+              
             </div>
       </div>
     </div>
@@ -219,16 +252,97 @@
       </div>
       
       <div class="negative-comments">
-        <div class="negative-badge">💬 负面评论 (1)</div>
+        <div class="negative-badge">💬 评论区 (9 条，1 条负面)</div>
         
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-12河南</span>
+                <span class="comment-likes">👍1</span>
+                
+              </div>
+              <div class="comment-body">小蝌蚪有什么缺点</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@Joyce25</span>
+                <span class="comment-time">2025-11-13河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">蛮好的啊，开放式点读包资源，能点一堆，而且就他送了笔套，唯一一个有衣服穿的</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-12河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">我入了自拼 但是我们零基础 我又退了 想等明年都齐全了再买吧 感觉价格应该都差不多</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@友人与猫</span>
+                <span class="comment-time">2025-11-15浙江</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">我买的小蝌蚪</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@momo</span>
+                <span class="comment-time">2025-11-23安徽</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">你好，请问在什么平台买的呀</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@Joyce25</span>
+                <span class="comment-time">2025-11-23河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">小红书买的</div>
+              
+            </div>
             <div class="neg-comment">
               <div class="neg-comment-header">
                 <span class="comment-author">@又见花海</span>
                 <span class="comment-time">2025-11-22内蒙古</span>
                 <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
               </div>
               <div class="comment-body">你说的很中肯，确实这个拓展希望可以出全英的就好了</div>
-              <div class="ai-reason">🤖 表达了对中文讲解的不满，希望出全英拓展，符合‘明确表达不满’标准。</div>
+              <div class="ai-reason">🤖 提出希望纯英语拓展，是建议而非负面情绪表达。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@Emilie</span>
+                <span class="comment-time">2025-11-22广东</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">你好，在哪能买到全套</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@周周🌸</span>
+                <span class="comment-time">2025-11-18四川</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">全套多少钱买的</div>
+              
             </div>
       </div>
     </div>
@@ -247,31 +361,74 @@
         </div>
       </div>
       
-      <div class="post-content">
-        <div class="context-badge">📄 帖子原文</div>
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容负面</div>
+        <div class="ai-reason">🤖 明确吐槽点读笔功能简易且旧版泛滥，暗示产品不成熟。</div>
         <p>偶然翻出来，奇奇学原来之前就搞过点读笔，应该是曾经的试用版？功能简易，不知道新版会有啥变化。哎，秦始皇没统一的点读笔在家里泛滥了。</p>
       </div>
       
       <div class="negative-comments">
-        <div class="negative-badge">💬 负面评论 (2)</div>
+        <div class="negative-badge">💬 评论区 (6 条，2 条负面)</div>
         
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@汪毛毛</span>
+                <span class="comment-time">2025-08-24江苏</span>
+                <span class="comment-likes">👍1</span>
+                
+              </div>
+              <div class="comment-body">波波球也是点读笔，之前有几年可以点东方娃娃杂志的，突然就没了</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@三口一头猪🐷</span>
+                <span class="comment-time">2025-08-24天津</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">唉</div>
+              
+            </div>
             <div class="neg-comment">
               <div class="neg-comment-header">
                 <span class="comment-author">@kittysmiling</span>
                 <span class="comment-time">2025-12-14日本</span>
                 <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
               </div>
               <div class="comment-body">你好这个笔可以录音吗？书上面有录音和播放标志，可是点了也不能录音</div>
-              <div class="ai-reason">🤖 明确指出点读笔无法录音，属于功能缺陷描述。</div>
+              <div class="ai-reason">🤖 明确提问点读笔能否录音但无法实现，反映功能缺陷。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@三口一头猪🐷</span>
+                <span class="comment-time">2025-12-14天津</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">不能</div>
+              
             </div>
             <div class="neg-comment">
               <div class="neg-comment-header">
                 <span class="comment-author">@momo</span>
                 <span class="comment-time">2025-08-23四川</span>
                 <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
               </div>
               <div class="comment-body">和我们家一样，巧虎的笔太鸡肋了，每次都只能点几本书，又要换新笔</div>
-              <div class="ai-reason">🤖 客服确认该笔无法点读当前卡片，属于产品功能限制或故障。</div>
+              <div class="ai-reason">🤖 直接抱怨巧虎点读笔鸡肋，只能点几本书需换新笔，体现对同类产品的不满。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@三口一头猪🐷</span>
+                <span class="comment-time">2025-08-23天津</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">对 巧虎好不容易统一了 我们也都集齐了</div>
+              
             </div>
       </div>
     </div>
@@ -292,22 +449,73 @@
       
       <div class="post-content negative-post">
         <div class="negative-badge">📝 帖子内容负面</div>
-        <div class="ai-reason">🤖 用户表示点读笔点哪儿都没反应，属于明显的产品故障描述。</div>
+        <div class="ai-reason">🤖 明确表示点读笔使用时无反应，说明产品故障。</div>
         <p>很早以前买了点读笔和卡片，突然要用了，点哪儿都没反应。有知道怎么用的吗
 #点读笔 #牛津树#牛津树点读笔</p>
       </div>
       
       <div class="negative-comments">
-        <div class="negative-badge">💬 负面评论 (1)</div>
+        <div class="negative-badge">💬 评论区 (6 条，1 条负面)</div>
         
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@momo</span>
+                <span class="comment-time">01-06广西</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">小达人能点这卡吗</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@当妈在成长</span>
+                <span class="comment-time">01-06上海</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">不可以的</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@momo太郎</span>
+                <span class="comment-time">2025-09-22浙江</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">我也刚刚翻出来，在看到底可以点什么</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@当妈在成长</span>
+                <span class="comment-time">2025-10-31上海</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">另外一套书可以点的，音效还不错</div>
+              
+            </div>
             <div class="neg-comment">
               <div class="neg-comment-header">
                 <span class="comment-author">@当妈在成长</span>
                 <span class="comment-time">2025-07-02上海</span>
                 <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
               </div>
               <div class="comment-body">问了客服，这个笔点不了这个卡片。另外有一套书可以点</div>
-              <div class="ai-reason">🤖 客服明确说明该笔无法点读当前卡片，构成产品功能缺陷。</div>
+              <div class="ai-reason">🤖 客服确认该笔无法点读卡片，属于明确的产品功能缺陷描述。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@毛毛</span>
+                <span class="comment-time">2025-07-12广东</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">谢谢姐妹，我也说怎么点不了</div>
+              
             </div>
       </div>
     </div>
@@ -326,11 +534,201 @@
         </div>
       </div>
       
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容负面</div>
+        <div class="ai-reason">🤖 多条评论明确表达对溢价购买小彼恩的后悔和不满，间接贬低奇奇学相关产品（因对比中凸显其性价比）。</div>
+        <p>小彼恩的买不到 买不到 买不到 溢价太厉害了
+因为比较喜欢牛津树 所以只能买这个了其实我是不想要那么多点读笔 感觉一支能用好 就不错了#点读笔</p>
+      </div>
       
+      <div class="negative-comments">
+        <div class="negative-badge">💬 评论区 (18 条，3 条负面)</div>
+        
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@♫</span>
+                <span class="comment-time">2025-11-04广东</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">蹲博主一个用后体验踢我</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@夏夏</span>
+                <span class="comment-time">2025-11-07安徽</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">我也想知道</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@红小豆</span>
+                <span class="comment-time">2025-11-09山西</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">光靠牛津树不太行 最后还得➕大猫或者RAZ 之类的 我感觉奇奇学能用 比溢价小彼恩强 溢价的几千块钱够买多少桥梁书了</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-09河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">是的 我大猫只买了1-3 后面再入4-6</div>
+              
+            </div>
+            <div class="neg-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@嘿嘿</span>
+                <span class="comment-time">2025-11-03四川</span>
+                <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
+              </div>
+              <div class="comment-body">溢价买的亏死了，都是正版一样的</div>
+              <div class="ai-reason">🤖 明确说‘溢价买的亏死了’，表达强烈负面情绪。</div>
+            </div>
+            <div class="neg-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@垂耳兔小姐🐰</span>
+                <span class="comment-time">2025-11-03辽宁</span>
+                <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
+              </div>
+              <div class="comment-body">大冤种就是我没错了</div>
+              <div class="ai-reason">🤖 用‘大冤种’形容自己，表达对高价购买的后悔。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-03河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">1.听主播说后期还会出牛津树系列别的书 应该也可以点读的 要是这样的话 这支笔也是有点价值的\r2.点页码时候  下载点读包 也可以换成全英文的讲解</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@大女主lina</span>
+                <span class="comment-time">2025-11-07辽宁</span>
+                <span class="comment-likes">👍1</span>
+                
+              </div>
+              <div class="comment-body">是的所以我也入了 本来不应该这么早就想看看效果还有小彼恩没买到补下那时候没抢到太难受了</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@momo</span>
+                <span class="comment-time">2025-11-03广东</span>
+                <span class="comment-likes">👍2</span>
+                
+              </div>
+              <div class="comment-body">我打算买奇奇学了，和小彼恩的价格是一样的，相当于送的也没差。溢价的真的没必要</div>
+              
+            </div>
+            <div class="neg-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-03河南</span>
+                <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
+              </div>
+              <div class="comment-body">太对了 溢价的太离谱了</div>
+              <div class="ai-reason">🤖 指出‘溢价的太离谱了’，直接贬低高价产品，隐含对奇奇学作为替代品的价值认可，但整体语境为负面。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@海滩上的脚丫</span>
+                <span class="comment-time">2025-11-07陕西</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">咋样？实操了没</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@朴甜甜</span>
+                <span class="comment-time">2025-11-03河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">这个有中文，点读笔也是封闭只能点这个</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@小红薯644B44AD</span>
+                <span class="comment-time">2025-11-03安徽</span>
+                <span class="comment-likes">👍1</span>
+                
+              </div>
+              <div class="comment-body">谨慎一些</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-03河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">A标 彩红花 毛毛虫点读不了吧</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@Lucky</span>
+                <span class="comment-time">2025-11-09福建</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">买了祖国版彩虹花还没看一页 又想买奇奇学了[尬住R]</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-09河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">大全套吗？ 你那也可以 主要在于孩子能学到多少\r我听人家说 那种铅超标 甲醛什么的 具体咱也不知道</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@温暖暖向上上</span>
+                <span class="comment-time">2025-11-07山东</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">我也买了全套已经收到了，没有味道音质也挺好的，手里也有毛毛虫，溢价书实在下不去手。不知道为什么被好多人说的那么不堪</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@勺子家的小芒果🍋</span>
+                <span class="comment-time">2025-11-07河南</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">你是自拼➕拓展吗</div>
+              
+            </div>
+      </div>
     </div>
 
   <div class="footer">
-    <p>Generated by xhs-monitor (AI sentiment) · 2026-03-06T12:07:42.850Z</p>
+    <p>Generated by xhs-monitor (AI sentiment) · 2026-03-06T12:14:21.187Z</p>
     <p>分析模型: qwen-turbo-latest · 数据来源：小红书</p>
   </div>
 </body>

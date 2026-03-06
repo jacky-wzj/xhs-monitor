@@ -258,25 +258,31 @@ function renderNegativeItem(note, analysis, index) {
       </div>`;
   }
 
-  // 差评评论
+  // 差评评论 + 全部评论上下文
   let commentsHtml = '';
   const negComments = (analysis.negativeComments || []);
-  if (negComments.length > 0) {
+  const negCommentIndexSet = new Set(negComments.map(nc => nc.commentIndex));
+  const negReasonMap = {};
+  for (const nc of negComments) negReasonMap[nc.commentIndex] = nc.reason;
+
+  if (comments.length > 0) {
+    const negCount = negComments.length;
     commentsHtml = `
       <div class="negative-comments">
-        <div class="negative-badge">💬 负面评论 (${negComments.length})</div>
-        ${negComments.map(nc => {
-          const c = comments[nc.commentIndex - 1];
-          if (!c) return '';
+        <div class="negative-badge">💬 评论区 (${comments.length} 条${negCount > 0 ? `，${negCount} 条负面` : ''})</div>
+        ${comments.map((c, ci) => {
+          const idx = ci + 1;
+          const isNeg = negCommentIndexSet.has(idx);
           return `
-            <div class="neg-comment">
+            <div class="${isNeg ? 'neg-comment' : 'normal-comment'}">
               <div class="neg-comment-header">
                 <span class="comment-author">@${escapeHtml(c.author)}</span>
                 ${c.time ? `<span class="comment-time">${escapeHtml(c.time)}</span>` : ''}
                 ${c.likes && c.likes !== '0' ? `<span class="comment-likes">👍${c.likes}</span>` : ''}
+                ${isNeg ? '<span class="neg-label">⚠️ 负面</span>' : ''}
               </div>
               <div class="comment-body">${escapeHtml(truncate(c.content, 300))}</div>
-              <div class="ai-reason">🤖 ${escapeHtml(nc.reason)}</div>
+              ${isNeg && negReasonMap[idx] ? `<div class="ai-reason">🤖 ${escapeHtml(negReasonMap[idx])}</div>` : ''}
             </div>`;
         }).join('')}
       </div>`;
@@ -427,6 +433,18 @@ function generateHtml(notes, negativeResults) {
       border-radius: 8px;
       padding: 12px;
       margin-top: 10px;
+    }
+    .normal-comment {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .neg-label {
+      color: var(--red);
+      font-size: 0.8em;
+      font-weight: 600;
     }
     .neg-comment-header {
       display: flex;
