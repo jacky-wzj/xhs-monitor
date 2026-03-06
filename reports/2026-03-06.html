@@ -1,0 +1,1139 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奇奇学 小红书舆情监控 — 2026-03-06</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card-bg: #1a1a1a;
+      --card-border: #2a2a2a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --accent: #ff6b35;
+      --accent2: #4ecdc4;
+      --red: #ff4757;
+      --green: #2ed573;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 1.8em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .header .date { color: var(--text-dim); font-size: 1.1em; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .summary-card .number {
+      font-size: 2em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .summary-card .label { color: var(--text-dim); font-size: 0.9em; }
+    .section-title {
+      font-size: 1.4em;
+      color: var(--accent2);
+      margin: 30px 0 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent2);
+    }
+    .note-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .note-card:hover { border-color: var(--accent); }
+    .note-header { padding: 16px 16px 8px; }
+    .note-header h3 { font-size: 1.1em; margin-bottom: 8px; }
+    .note-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85em; }
+    .note-meta .author { color: var(--accent2); }
+    .note-meta .likes { color: var(--red); }
+    .keyword-tag {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    .screenshot { padding: 8px 16px; }
+    .screenshot img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: max-height 0.3s;
+    }
+    .screenshot img.expanded { max-height: none; }
+    .note-content { padding: 8px 16px; }
+    .note-content p { color: var(--text-dim); font-size: 0.9em; }
+    .note-footer { padding: 8px 16px 12px; }
+    .note-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85em;
+    }
+    .note-footer a:hover { text-decoration: underline; }
+    .comments {
+      border-top: 1px solid var(--card-border);
+      padding: 12px 16px;
+    }
+    .comments-header {
+      font-size: 0.9em;
+      color: var(--accent2);
+      margin-bottom: 8px;
+    }
+    .comment {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.85em;
+    }
+    .comment-author { color: var(--accent); margin-right: 8px; }
+    .comment-content { color: var(--text-dim); }
+    .comment-likes { color: var(--text-dim); font-size: 0.8em; margin-left: 6px; }
+    .more-comments { color: var(--text-dim); font-size: 0.8em; padding-top: 6px; }
+    .top-notes { margin-bottom: 30px; }
+    .top-note-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .top-note-item .rank {
+      font-size: 1.2em;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 30px;
+    }
+    .top-note-item .info { flex: 1; margin: 0 12px; }
+    .top-note-item .info .title { font-size: 0.9em; }
+    .top-note-item .info .author { font-size: 0.8em; color: var(--text-dim); }
+    .top-note-item .likes-count { color: var(--red); font-weight: 600; }
+    .footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-dim);
+      font-size: 0.8em;
+      border-top: 1px solid var(--card-border);
+      margin-top: 30px;
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+      .header h1 { font-size: 1.4em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔍 奇奇学 · 小红书舆情监控</h1>
+    <div class="date">2026-03-06</div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-card">
+      <div class="number">17</div>
+      <div class="label">监控笔记</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">326</div>
+      <div class="label">总点赞</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">95</div>
+      <div class="label">总评论</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">3</div>
+      <div class="label">关键词命中</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">🏆 热门 TOP5</h2>
+  <div class="top-notes">
+    
+      <div class="top-note-item">
+        <span class="rank">#1</span>
+        <div class="info">
+          <div class="title">一下午没理我！2岁娃居然坐下看书识字了！</div>
+          <div class="author">@胖胖妈呀 · 奇奇学</div>
+        </div>
+        <span class="likes-count">❤️ 249</span>
+      </div>
+    
+      <div class="top-note-item">
+        <span class="rank">#2</span>
+        <div class="info">
+          <div class="title">奇奇学牛津树开箱</div>
+          <div class="author">@Joyce25 · 奇奇学牛津树</div>
+        </div>
+        <span class="likes-count">❤️ 19</span>
+      </div>
+    
+      <div class="top-note-item">
+        <span class="rank">#3</span>
+        <div class="info">
+          <div class="title">今天周末不刷分级，巩固一下单词吧</div>
+          <div class="author">@月光小狐狸 · 奇奇学牛津树</div>
+        </div>
+        <span class="likes-count">❤️ 12</span>
+      </div>
+    
+      <div class="top-note-item">
+        <span class="rank">#4</span>
+        <div class="info">
+          <div class="title">牛津树客观对比拓展阅读L4｜奇奇学vs牛津树</div>
+          <div class="author">@吃吃Amber · 奇奇学牛津树</div>
+        </div>
+        <span class="likes-count">❤️ 10</span>
+      </div>
+    
+      <div class="top-note-item">
+        <span class="rank">#5</span>
+        <div class="info">
+          <div class="title">奇奇学牛津树</div>
+          <div class="author">@不是迪迪 · 奇奇学点读笔</div>
+        </div>
+        <span class="likes-count">❤️ 8</span>
+      </div>
+    
+  </div>
+
+  
+      <h2 class="section-title">🔎 奇奇学 (1)</h2>
+      
+    <div class="note-card">
+      <div class="note-header">
+        <h3>1. 一下午没理我！2岁娃居然坐下看书识字了！</h3>
+        <div class="note-meta">
+          <span class="author">👤 胖胖妈呀</span>
+          <span class="likes">❤️ 249</span>
+          <span class="keyword-tag">奇奇学</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学_13.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>刷个手机都在说鸡娃，全网都在说阅读要趁早抓，周围人也都在卷，但实际操作发现，绘本花了几千块，孩子爸照着读，没一会儿孩子就跑了，我们以为有趣的，孩子压根不感兴趣。
+直到用了奇奇学阅读，每天15分钟，
+以前看书就跑的幼崽，现在每天都要提醒我看奇奇讲故事，有真人配音阅读，读完故事有老师带着学习思维导图，用孩子们可以理解的简单语言反复提示练习刚才学到的知识，再用闯关的方法帮孩子在阅读中识字，最后还有一个开口表达环节，有相声有老师唱跳学古诗，还会生成的报告今天都学了什么。
+奇奇学阅读用的是国际学校在用的ib体系，主打——主题式跨学科阅读！
+每周、每月一共48个不同主题。他们和北师大儿童阅读研究院合作研发的分级阅读成长体系，分阶段把人类进化、动物迁徙、地理的、社会科学、自然科普、审美教育等等全串起来，从易到难，内容和故事画风都不一样，幼崽也不会审美疲劳。里面的字词、句型句式、古诗成语都是小学低年级必备的，每天阅读就能识字800+。我对比发现，里面学到的词句、句型句式、古诗成语都是小学低年级必备的，每周4天不同学科的阅读+1天复习，会讲好多种阅读方法，像故事三要素、流程图，耳濡目染，对他未来阅读很有...</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/675284bd0000000006015aa6" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      
+    </div>
+  
+    
+      <h2 class="section-title">🔎 奇奇学点读笔 (7)</h2>
+      
+    <div class="note-card">
+      <div class="note-header">
+        <h3>2. 喜马拉雅奇奇学点读笔</h3>
+        <div class="note-meta">
+          <span class="author">👤 三口一头猪🐷</span>
+          <span class="likes">❤️ 0</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_5.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>偶然翻出来，奇奇学原来之前就搞过点读笔，应该是曾经的试用版？功能简易，不知道新版会有啥变化。哎，秦始皇没统一的点读笔在家里泛滥了。</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/68a9b180000000001d034652" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 6 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">汪毛毛</span>
+            <span class="comment-content">波波球也是点读笔，之前有几年可以点东方娃娃杂志的，突然就没了</span>
+            <span class="comment-likes">👍1</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">三口一头猪🐷</span>
+            <span class="comment-content">唉</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">kittysmiling</span>
+            <span class="comment-content">你好这个笔可以录音吗？书上面有录音和播放标志，可是点了也不能录音</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">三口一头猪🐷</span>
+            <span class="comment-content">不能</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">momo</span>
+            <span class="comment-content">和我们家一样，巧虎的笔太鸡肋了，每次都只能点几本书，又要换新笔</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">三口一头猪🐷</span>
+            <span class="comment-content">对 巧虎好不容易统一了 我们也都集齐了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>3. 准备给宝宝做英语启蒙，现在有点纠结</h3>
+        <div class="note-meta">
+          <span class="author">👤 奥特曼打小乖</span>
+          <span class="likes">❤️ 6</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_6.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>失去了牛津树的毛毛虫🐛点读笔还值得买吗？
+家里目前有巧虎的点读笔但是宝宝不爱点读绘本，喜欢让我读……
+有一本豚小萌的大百科宝宝很爱看，但是之前买了配套的点读笔，一直连接不上我就退了……
+现在又想买毛毛虫了，有没有买过的姐妹来说一下……现在牛津树不能用的话，还要单独再买奇奇学的点读笔和牛津树吗？
+	
+#毛毛虫点读笔 #双语宝宝 #英语启蒙绘本 #创造英语语言环境 #少儿英语</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/698585920000000015022cb3" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 34 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">北雁南飞</span>
+            <span class="comment-content">除了牛津树还有很多很不错的绘本可以点，我买毛毛虫就不是为了牛津树，太贵了。</span>
+            <span class="comment-likes">👍1</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">奥特曼打小乖</span>
+            <span class="comment-content">感谢分享已经下单了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">桥洞里有只猫®🍀</span>
+            <span class="comment-content">买吧！我现在觉得当时订了巧虎我就没考虑别的点读笔，现在还是觉得要买！还不如早点买早点用</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">奥特曼打小乖</span>
+            <span class="comment-content">嗯嗯，买了，我家也有巧虎，但是感觉巧虎英语启蒙不太行</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">momo</span>
+            <span class="comment-content">非常值得买，不光英文，中文和数学也很棒</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">奥特曼打小乖</span>
+            <span class="comment-content">感谢分享</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">谭谭</span>
+            <span class="comment-content">当然值得呀，值得值得</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">奥特曼打小乖</span>
+            <span class="comment-content">嗯嗯，用起来了！</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">過眼雲煙</span>
+            <span class="comment-content">還小可能值得吧？我四歲才入的就沒什麼用處，孩子也習慣聽音頻了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">奥特曼打小乖</span>
+            <span class="comment-content">我们现在蛮合适的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        <div class="more-comments">还有 9 条评论...</div>
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>4. 奇奇学点读笔怎么用啊？</h3>
+        <div class="note-meta">
+          <span class="author">👤 当妈在成长</span>
+          <span class="likes">❤️ 0</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_7.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>很早以前买了点读笔和卡片，突然要用了，点哪儿都没反应。有知道怎么用的吗
+#点读笔 #牛津树#牛津树点读笔</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/68615a3300000000110025c8" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 8 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">momo</span>
+            <span class="comment-content">小达人能点这卡吗</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">当妈在成长</span>
+            <span class="comment-content">不可以的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">momo太郎</span>
+            <span class="comment-content">我也刚刚翻出来，在看到底可以点什么</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">当妈在成长</span>
+            <span class="comment-content">另外一套书可以点的，音效还不错</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">当妈在成长</span>
+            <span class="comment-content">问了客服，这个笔点不了这个卡片。另外有一套书可以点</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">毛毛</span>
+            <span class="comment-content">谢谢姐妹，我也说怎么点不了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>5. 牛津树</h3>
+        <div class="note-meta">
+          <span class="author">👤 勺子家的小芒果🍋</span>
+          <span class="likes">❤️ 3</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_10.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>小彼恩的买不到 买不到 买不到 溢价太厉害了
+因为比较喜欢牛津树 所以只能买这个了其实我是不想要那么多点读笔 感觉一支能用好 就不错了#点读笔</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69085ef9000000000703102b" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 64 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">♫</span>
+            <span class="comment-content">蹲博主一个用后体验踢我</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">夏夏</span>
+            <span class="comment-content">我也想知道</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">红小豆</span>
+            <span class="comment-content">光靠牛津树不太行 最后还得➕大猫或者RAZ 之类的 我感觉奇奇学能用 比溢价小彼恩强 溢价的几千块钱够买多少桥梁书了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">勺子家的小芒果🍋</span>
+            <span class="comment-content">是的 我大猫只买了1-3 后面再入4-6</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">嘿嘿</span>
+            <span class="comment-content">溢价买的亏死了，都是正版一样的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">垂耳兔小姐🐰</span>
+            <span class="comment-content">大冤种就是我没错了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">勺子家的小芒果🍋</span>
+            <span class="comment-content">1.听主播说后期还会出牛津树系列别的书 应该也可以点读的 要是这样的话 这支笔也是有点价值的\r2.点页码时候  下载点读包 也可以换成全英文的讲解</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">大女主lina</span>
+            <span class="comment-content">是的所以我也入了 本来不应该这么早就想看看效果还有小彼恩没买到补下那时候没抢到太难受了</span>
+            <span class="comment-likes">👍1</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">momo</span>
+            <span class="comment-content">我打算买奇奇学了，和小彼恩的价格是一样的，相当于送的也没差。溢价的真的没必要</span>
+            <span class="comment-likes">👍2</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">勺子家的小芒果🍋</span>
+            <span class="comment-content">太对了 溢价的太离谱了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        <div class="more-comments">还有 8 条评论...</div>
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>6. 喜马拉雅牛津树拓展阅读L1亲子阅读第二天</h3>
+        <div class="note-meta">
+          <span class="author">👤 Mae</span>
+          <span class="likes">❤️ 5</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_11.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>喜马拉雅牛津树拓展阅读L1亲子阅读第二天
+不想高价收二手小彼恩的牛津树
+转而购入喜马拉雅旗下奇奇学的点读笔和书
+目前书本没有味道
+孩子也有兴趣
+希望能坚持下去
+	
+#RAZ英语分级阅读 #奇奇学 #喜马拉雅牛津树 #分级阅读 #牛津树 #双语宝宝 #英语启蒙绘本 #毛毛虫点读笔</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/68f782a40000000007035615" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 9 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">我是小阿玉啊</span>
+            <span class="comment-content">一堆天天吵吵不要中英文，我倒是好奇了有几个能全英文早教的，母语怎么可能不说呢，我英渣，我女儿22月龄，现在英语词汇保守300+，天天晚上睡觉都主动熏听，我想知道中英一起学到底能影响什么，自己孩子怎么舒服怎么教，英文学会了母语也一起学会了不好吗</span>
+            <span class="comment-likes">👍5</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">晚安小乙</span>
+            <span class="comment-content">说的太对了姐妹，斑马英语就是全英文，我小孩之前学了一年啥也没学会</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">小凌花</span>
+            <span class="comment-content">有中文讲解后感觉孩子都输出中文了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">Mae</span>
+            <span class="comment-content">无所谓啊，难道你们家生活在是英语交流的环境里？也不给娃读中文绘本？</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">默</span>
+            <span class="comment-content">姐妹 这个笔是不是只能点牛津树 其他书点不了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">Mae</span>
+            <span class="comment-content">好像是的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>7. </h3>
+        <div class="note-meta">
+          <span class="author">👤 ʚ 🧸ྀིɞ</span>
+          <span class="likes">❤️ 0</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_12.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>宝宝：妈妈我要看floppy的书
+我：去拿笔去
+宝宝：可是我没找着它呢
+我：上次用完没有给它送回家吗
+宝宝：emmmm它可能藏起来了
+我：咱一起找找吧
+宝宝：找不到呢，他可能出去玩了
+我：完了，丢了
+#点读笔 #阅读伴成长 #奇奇学 #牛津树</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/699fe8f9000000002202d040" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>8. 奇奇学牛津树</h3>
+        <div class="note-meta">
+          <span class="author">👤 不是迪迪</span>
+          <span class="likes">❤️ 8</span>
+          <span class="keyword-tag">奇奇学点读笔</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学点读笔_13.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>买了奇奇学的牛津树，因为原来有小彼恩的牛津树拓展阅读1+，所以奇奇学买的拓展阅读2-9，自然拼读一并买了1-6，单独买的点读笔，省的纠结了。感觉和小彼恩没什么太大区别，孩子读的好与不好不差这点差距#奇奇学牛津树 #奇奇学点读笔 #毛毛虫点读笔 #小彼恩牛津树</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/692c106c000000001e03a763" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 44 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">不是迪迪</span>
+            <span class="comment-content">集美们，去各大直播间买，不要去官方旗舰店买，旗舰店贵，我就是那个大怨种</span>
+            <span class="comment-likes">👍2</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">莉莉莎加油fighting!</span>
+            <span class="comment-content">姐妹，你也太大冤种了吧，你抖音或者小红书随便一个主播的直播间买，都送笔啊，你还买这么多呢</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">🥕微然🐰2+</span>
+            <span class="comment-content">集美，你这么买应该可以送笔了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">不是迪迪</span>
+            <span class="comment-content">怎么才能送笔啊，我搞不清楚那些活动，都是直接店里买的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">123</span>
+            <span class="comment-content">和我一样我也是只有毛毛虫的拓展1+，也准备买奇奇学的2-9，绝对不溢价买小彼恩</span>
+            <span class="comment-likes">👍1</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">不是迪迪</span>
+            <span class="comment-content">是的，没差多少，孩子学的好与不好根本不差那点，而且小彼恩最近出的奖学金活动也有点让我失望</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">♥🌟小星光</span>
+            <span class="comment-content">那个点读笔不是满2800还是多少送的吗</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">不是迪迪</span>
+            <span class="comment-content">好像得在直播间买，我在抖音官方店买的没有这个活动</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">美森外教</span>
+            <span class="comment-content">同学您好，您设置了权限，这边没办法回复您的私信咨询，可以打开一下吗</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">祝祝老师流行声乐小课堂</span>
+            <span class="comment-content">视频呢</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        <div class="more-comments">还有 2 条评论...</div>
+      </div>
+    </div>
+  
+    
+      <h2 class="section-title">🔎 奇奇学牛津树 (9)</h2>
+      
+    <div class="note-card">
+      <div class="note-header">
+        <h3>9. 牛津树客观对比拓展阅读L4｜奇奇学vs牛津树</h3>
+        <div class="note-meta">
+          <span class="author">👤 吃吃Amber</span>
+          <span class="likes">❤️ 10</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_5.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>#英语分级阅读 #双语启蒙 #英语启蒙绘本 #原版英语教材 #牛津自然拼读 #幼儿英语启蒙 #宝宝英文启蒙绘本 #英语启蒙开口神器 #毛毛虫点读笔 #牛津树</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/6911877500000000040157c9" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 7 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">一只荷包蛋</span>
+            <span class="comment-content">请问奇奇学是直接会跟着中文在后面吗？有没有不让它读中文的方式</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">吃吃Amber</span>
+            <span class="comment-content">没有直接跟着</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">友人与猫</span>
+            <span class="comment-content">还是毛毛虫好喂</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">🦄</span>
+            <span class="comment-content">毛毛虫好清晰，但是表达太书面了。各有各的好</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>10. 标题：挑战21天打卡牛津树成功！期待🎁</h3>
+        <div class="note-meta">
+          <span class="author">👤 LS丶</span>
+          <span class="likes">❤️ 3</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_7.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>孩子圆满完成@艾莉妈妈 组织的21天奇奇学牛津树打卡啦！
+这21天里，最惊喜的是孩子从一开始需要提醒，到后来主动拿起绘本、英文兴趣一点点被点燃。
+孩子喜欢《牛津树》里轻松有趣的家庭故事，画面可爱、情节贴近生活，孩子读起来不抗拒、不枯燥，越读越投入。
+未来会继续跟着奇奇学和牛津树，坚持每天一点点积累，让英语变成孩子喜欢、自信、敢说的语言，慢慢爱上阅读，勇敢开口！
+感谢艾莉妈妈的用心组织，也感谢奇奇学带来这么棒的英文启蒙～</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69a67fa8000000001b014005" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 6 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">猫儿上炕捏MOMO</span>
+            <span class="comment-content">想问下姐妹这个是什么版本的牛津树呀</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">LS丶</span>
+            <span class="comment-content">校园版 拓展</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">好丸是个真好丸</span>
+            <span class="comment-content">牛</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">艾莉妈妈</span>
+            <span class="comment-content">好可爱的妹妹</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>11. 挑战21天打卡牛津树成功！期待🎁</h3>
+        <div class="note-meta">
+          <span class="author">👤 桑尼妖妖</span>
+          <span class="likes">❤️ 1</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_8.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>孩子参加了@艾莉妈妈 组织的21天奇奇学牛津树打卡活动，顺利完成！
+小朋友坚持读牛津树已经好几个月了，每本书都反复读过很多遍。参加这21天的打卡活动，对小朋友来说也是一种很好的锻炼和激励。里面的很多书都很有趣，太多了，无法一一列举了。小朋友经常看得咯咯笑～
+虽然打卡结束了，但每天读牛津树已经变成习惯，会继续坚持下去的。希望宝贝在英文的世界里越走越远，慢慢爱上阅读～
+感谢@奇奇学 奖励好习惯工具箱！继续加油😊</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69a63711000000002801e32b" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 1 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">艾莉妈妈</span>
+            <span class="comment-content">建立兴趣是成功的一半，点赞！</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>12. 奇奇学牛津树点读笔</h3>
+        <div class="note-meta">
+          <span class="author">👤 与寻</span>
+          <span class="likes">❤️ 0</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_9.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>吐槽一下奇奇学牛津树level2-A new dog书第13页</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69a584ba000000001a01fa91" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 3 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">♥🌟小星光</span>
+            <span class="comment-content">没声音吗？</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">与寻</span>
+            <span class="comment-content">对，就是这一页没有声音，然后点读笔就卡住了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">奇奇学售后服务</span>
+            <span class="comment-content">亲我看到啦，我来为您处理哈</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>13. 挑战21天打卡牛津树成功啦，期待🎁</h3>
+        <div class="note-meta">
+          <span class="author">👤 听说</span>
+          <span class="likes">❤️ 2</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_10.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>孩子参加了@艾莉妈妈 组织的21天奇奇学牛津树打卡活动，我们竟然真的坚持了21天从第一天好奇地翻开 Biff 家的故事，到第二十一天流利地跟读“Look at me!”孩子从需要我陪读，到主动拿起点读笔，更离不开有趣的绘本故事，接下来Level 2、3继续冲！不奢望他成为英语神童，只希望他将来回看童年，记得有个21天，有Kipper陪伴，有妈妈坚持。
+感谢@奇奇学 奖励好习惯工具箱！继续加油</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69a649b6000000002203030d" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 2 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">奇奇学</span>
+            <span class="comment-content">棒棒哒</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">艾莉妈妈</span>
+            <span class="comment-content">棒棒的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>14. 打卡是坚持的印记🌟✨</h3>
+        <div class="note-meta">
+          <span class="author">👤 万有颖力☀</span>
+          <span class="likes">❤️ 1</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_11.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>🎉 挑战21天打卡牛津树成功！期待🎁。顺利结束@艾莉妈妈 组织的21天奇奇学牛津树打卡活动。牛津树的故事性真的太强了，孩子跟着Kipper一家的冒险，不知不觉就把语感磨出来了。色彩鲜艳的画面和地道的发音，孩子特别有代入感。21天的坚持不仅是完成任务，更是给孩子种下了一颗喜欢英语的种子。新的一年，继续跟随牛津树，奔赴更广阔的英文世界！ 😃
+小朋友最最惊喜的是《pirate adventure》这本，因为开始穿越了，开启更奇妙的冒险故事。
+好习惯真的需要坚持，21天只是开始，马年我们要继续马不停蹄地学英语，把这份语感保持下去！🚀
+感谢@奇奇学 奖励好习惯工具箱！继续加油😊
+	
+#牛津树 #21天打卡 #英语启蒙 #奇奇学 #元宵节快乐</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69a66f02000000001a030c20" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>15. 奇奇学牛津树开箱</h3>
+        <div class="note-meta">
+          <span class="author">👤 Joyce25</span>
+          <span class="likes">❤️ 19</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_12.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>犹豫几日还是在首发入手了奇奇学牛津树大全套
+全部产品如图，目前是拓展1+到9，自拼1-6，有点读笔，打卡表，四本果冻贴和floopy钥匙扣
+说实话在读牛津树的故事之前，我对他这个画风实在无感，但他口碑确实好，所以在小彼恩绝版清仓的时候买了1+给孩子看，孩子会被故事吸引，就开始关注奇奇学的上架
+1️⃣奇奇学点读笔，质感和音效我认为跟市面上主流的几支笔大差不差，它只支持点读牛津树所以是本地笔也影响不大，孩子目前对floopy形象很有新鲜感
+2️⃣我认为奇奇学牛津树最应该升级的是解说点读包，他配的童老师解说从低级别到高级别中文会越来越少，当然有适用人群，而作为给孩子启蒙较早的家长是希望纯英语阅读的，解说拓展也希望是纯英语的由易到难，类似于一些博主的牛津树带读，低级别简单互动，高级别丰富拓展，这样对从小龄开始爬树的家庭一定是更有吸引力的。含有中文的讲解更适合已经中文强势需要靠听懂来吸引孩子上树的家庭，但是如果年龄已经大一点了，我觉得目前童老师的讲解和一堆前后的音效有点效率低下了。
+若日后能有英文讲解点读包的更新应该在口碑上和小彼恩不会是五五分的现状了
+3️⃣是否现在入全套，如果孩子年龄到了，可...</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69144661000000000d038ac1" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 10 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">勺子家的小芒果🍋</span>
+            <span class="comment-content">小蝌蚪有什么缺点</span>
+            <span class="comment-likes">👍1</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">Joyce25</span>
+            <span class="comment-content">蛮好的啊，开放式点读包资源，能点一堆，而且就他送了笔套，唯一一个有衣服穿的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">勺子家的小芒果🍋</span>
+            <span class="comment-content">我入了自拼 但是我们零基础 我又退了 想等明年都齐全了再买吧 感觉价格应该都差不多</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">友人与猫</span>
+            <span class="comment-content">我买的小蝌蚪</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">momo</span>
+            <span class="comment-content">你好，请问在什么平台买的呀</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">Joyce25</span>
+            <span class="comment-content">小红书买的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">又见花海</span>
+            <span class="comment-content">你说的很中肯，确实这个拓展希望可以出全英的就好了</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">Emilie</span>
+            <span class="comment-content">你好，在哪能买到全套</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">周周🌸</span>
+            <span class="comment-content">全套多少钱买的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>16. 今天周末不刷分级，巩固一下单词吧</h3>
+        <div class="note-meta">
+          <span class="author">👤 月光小狐狸</span>
+          <span class="likes">❤️ 12</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_13.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>平时周一到周五奇奇学牛津树都是一天两节，上完两周课，前面的单词也都get了，然后再继续刷新的单词，不得不说，每天睡前卡片读一读，认一认，刷分级的时候会轻松很多</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/67433bd5000000000201bb85" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 3 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">亲爱的周一一</span>
+            <span class="comment-content">请问这个卡片哪里购买</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">月光小狐狸</span>
+            <span class="comment-content">喜马拉雅的奇奇学  我那时候是买了波波球，配套的练习和卡片也一起买了，波波球可以点读</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">潮起云生</span>
+            <span class="comment-content">厉害👍</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    <div class="note-card">
+      <div class="note-header">
+        <h3>17. 📦开箱｜奇奇学牛津树拓展阅读大全套</h3>
+        <div class="note-meta">
+          <span class="author">👤 海盐荔枝芝士球</span>
+          <span class="likes">❤️ 7</span>
+          <span class="keyword-tag">奇奇学牛津树</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-06/奇奇学牛津树_15.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>绝版的小彼恩实在是价高的离谱难以下手
+好在新出的奇奇学也还不错
+音效之类的没有对比过小彼恩版的也没有太大的落差
+觉得奇奇学用着也挺好
+牛津树相比大猫分级更具有故事性
+孩子虽然过得慢但是还是喜欢听故事的
+价格也是真的不便宜
+希望孩子能坚持到底
+#毛毛虫点读笔 #分级阅读 #英语启蒙绘本 #英语启蒙开口神器 #奇奇学 #牛津树 #大猫 #英语启蒙 #幼儿园英语启蒙</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/693d40f9000000000d00e308" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      <div class="comments">
+        <div class="comments-header">💬 评论 (共 8 条评论)</div>
+        
+          <div class="comment">
+            <span class="comment-author">Ivy</span>
+            <span class="comment-content">大全套多少入的</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+          <div class="comment">
+            <span class="comment-author">海盐荔枝芝士球</span>
+            <span class="comment-content">2969送点读笔</span>
+            <span class="comment-likes">👍赞</span>
+          </div>
+        
+        
+      </div>
+    </div>
+  
+    
+
+  <div class="footer">
+    <p>Generated by xhs-monitor · 2026-03-06T10:11:29.156Z</p>
+    <p>数据来源：小红书 · 过滤了品牌官方号</p>
+  </div>
+</body>
+</html>
