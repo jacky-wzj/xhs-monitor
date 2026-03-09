@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奇奇学 差评监控 — 2026-03-09</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card-bg: #1a1a1a;
+      --card-border: #2a2a2a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --accent: #ff6b35;
+      --red: #ff4757;
+      --red-bg: rgba(255, 71, 87, 0.08);
+      --red-border: rgba(255, 71, 87, 0.25);
+      --green: #2ed573;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+    }
+    .header h1 { font-size: 1.8em; color: var(--red); margin-bottom: 8px; }
+    .header .date { color: var(--text-dim); font-size: 1.1em; }
+    .header .stats {
+      margin-top: 12px;
+      font-size: 0.95em;
+      color: var(--text-dim);
+    }
+    .header .stats strong { color: var(--red); }
+    .header .method {
+      margin-top: 6px;
+      font-size: 0.8em;
+      color: var(--text-dim);
+      opacity: 0.7;
+    }
+    .neg-card {
+      background: var(--card-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 12px;
+      margin-bottom: 20px;
+      overflow: hidden;
+    }
+    .neg-header { padding: 16px; border-bottom: 1px solid var(--card-border); }
+    .neg-title { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+    .neg-index {
+      background: var(--red);
+      color: white;
+      font-size: 0.8em;
+      font-weight: 700;
+      padding: 2px 8px;
+      border-radius: 4px;
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+    .neg-title h3 { font-size: 1.1em; }
+    .neg-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85em; align-items: center; }
+    .neg-meta .author { color: var(--accent); }
+    .neg-meta .likes { color: var(--red); }
+    .neg-meta .date { color: var(--text-dim); }
+    .neg-meta a { color: var(--accent); text-decoration: none; font-size: 0.85em; }
+    .neg-meta a:hover { text-decoration: underline; }
+    .keyword-tag {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    .post-content { padding: 16px; }
+    .negative-post { background: var(--red-bg); }
+    .negative-badge {
+      font-size: 0.85em;
+      font-weight: 600;
+      color: var(--red);
+      margin-bottom: 8px;
+    }
+    .context-badge {
+      font-size: 0.85em;
+      font-weight: 600;
+      color: var(--text-dim);
+      margin-bottom: 8px;
+    }
+    .ai-reason {
+      font-size: 0.85em;
+      color: var(--accent);
+      margin: 6px 0;
+      padding: 4px 8px;
+      background: rgba(255, 107, 53, 0.08);
+      border-radius: 4px;
+      border-left: 3px solid var(--accent);
+    }
+    .post-content p { color: var(--text-dim); font-size: 0.9em; line-height: 1.7; }
+    .negative-comments { padding: 16px; border-top: 1px solid var(--card-border); }
+    .neg-comment {
+      background: var(--red-bg);
+      border: 1px solid var(--red-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .normal-comment {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 10px;
+    }
+    .neg-label {
+      color: var(--red);
+      font-size: 0.8em;
+      font-weight: 600;
+    }
+    .neg-comment-header {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 6px;
+      font-size: 0.85em;
+    }
+    .comment-author { color: var(--accent); font-weight: 500; }
+    .comment-time { color: var(--text-dim); }
+    .comment-likes { color: var(--text-dim); }
+    .comment-body { font-size: 0.9em; color: var(--text); line-height: 1.6; }
+    .no-data {
+      text-align: center;
+      padding: 60px 20px;
+      color: var(--text-dim);
+    }
+    .no-data-icon { font-size: 3em; margin-bottom: 16px; }
+    .no-data h2 { color: var(--green); margin-bottom: 8px; }
+    .footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-dim);
+      font-size: 0.8em;
+      border-top: 1px solid var(--card-border);
+      margin-top: 30px;
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .header h1 { font-size: 1.4em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>⚠️ 奇奇学 · 差评监控</h1>
+    <div class="date">2026-03-09</div>
+    <div class="stats">
+      共监控 <strong>3</strong> 条笔记，发现 <strong>1</strong> 条含负面内容
+      （差评帖 1 · 含负面评论 1）
+    </div>
+    <div class="method">分析方式：AI 语义分析（qwen-turbo-latest）</div>
+  </div>
+
+  
+  
+    <div class="neg-card">
+      <div class="neg-header">
+        <div class="neg-title">
+          <span class="neg-index">#1</span>
+          <h3>根本不用起诉，一个电话24小时全额退</h3>
+        </div>
+        <div class="neg-meta">
+          <span class="author">👤 熊律在线</span>
+          <span class="likes">❤️ 724</span>
+          <span class="date">📅 编辑于 2天前 湖北</span>
+          <span class="keyword-tag">奇奇学退费</span>
+          <a href="https://www.xiaohongshu.com/explore/69426329000000000d038b65" target="_blank" rel="noopener">🔗 原文</a>
+        </div>
+      </div>
+      
+      <div class="post-content negative-post">
+        <div class="negative-badge">📝 帖子内容负面</div>
+        <div class="ai-reason">🤖 明确提及退费困难问题，暗示奇奇学退费存在维权难题。</div>
+        <p>🌺薯友们大家好，💦之前发了关于退费的笔记，也得到了很多姐妹的関注，才发现原来有这么多姐妹也都有退费退不回来的苦处
+.
+🧐后面找到比12315更加炸裂好用🉐退费维权方法了，遇到退费难的问题，别着急！如果退费难，难退费，那么这篇文章对大家就很有帮助，能够快速拿回你的💰！
+.
+🔥策略如下：（后面有流程图➡️➡️）
+.
+⭕️1. 通过国家xin访局工众号投诉：
+• 打开薇xin，搜索“国家xin访局”。
+• 点击右下角的“投诉请求”按钮。
+• 注册登录后，再次点击“投诉请求”，选择“要求解决某事”。
+• 简要清晰地描述你的遭遇，然后提交投诉。
+.
+⭕️2. 假如投诉无果，可选择线上诉讼：
+• 操作平台：人min法院在线服务（有小成序和app，二者选其一即可）。
+.
+• 👊具体步骤：
+• 第👉一步：打开小程序，搜索“人min法院在线服务”🔍。
+• 第👉二步：进行实名认证📝。
+• 第👉三步：点击“我的案件”，系统会自动跳转至省份选择页面。
+• 第👉四步：选择“我要立案”，在弹出内容中选择“审判立案”。
+• 第👉五步：页面显示是否愿意由第三方调解，选择“不愿意”。
+• 第👉六步：再次点击“审判立案”，此时页面有两个选项，选择“为本人申请”。
+• 第👉七步：根据自身所在位置，选择对应的地方人民法院，案件类型选择“民事一审”，点击“下一步”。
+• 第👉八步：上传相关材料。
+.
+如果有不懂的还可以拨打12348☎️法律援助
+如果碰到法律上的问题，手头又不宽裕，可以直接拨打❗不仅免F告诉你相关法律知识。符合条件的还可以免F申请律师，免F打官司 ❗️有困难的老百姓要记住了❗️
+.
+姐妹们，别担心操作繁琐。如今线上处理十分便捷，一般只要提交的材料齐全合理，消费者胜诉的概率极大，诉讼费用大概也就50元💰。
+.
+其实退费维权并没有想象中那么艰难，关键是要勇敢迈出第一步...</p>
+      </div>
+      
+      <div class="negative-comments">
+        <div class="negative-badge">💬 评论区 (18 条，2 条负面)</div>
+        
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@mOMo💚</span>
+                <span class="comment-time">3天前重庆</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">合同找不到了能行吗</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@熊律在线</span>
+                <span class="comment-time">3天前湖北</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">哪方面的问题?</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@爱看，多麦！</span>
+                <span class="comment-time">01-22海南</span>
+                <span class="comment-likes">👍2</span>
+                
+              </div>
+              <div class="comment-body">信访局注册需要的证件照为啥一直不给我过啊[呃R]不是身份证吗[呃R]？</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@XXX</span>
+                <span class="comment-time">02-10上海</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">要拍照，电子身份证不可以</div>
+              
+            </div>
+            <div class="neg-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@熊律在线</span>
+                <span class="comment-time">2025-12-27湖北</span>
+                <span class="comment-likes">👍5</span>
+                <span class="neg-label">⚠️ 负面</span>
+              </div>
+              <div class="comment-body">✅不论是报了什么培训班，化妆班，补习班、兴趣班，办了任何美容卡、健身卡，按摩卡只要你中途不想去了，即便是个人原因也是可以退费！可以退款！可以退卡的！重要的事情说三遍！！！</div>
+              <div class="ai-reason">🤖 明确表示教育机构退费可主张权利，隐含对奇奇学退费难的负面体验。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@bbx_qy</span>
+                <span class="comment-time">2025-12-28贵州</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">租房应该选择那个问题呀</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@一碗茄子</span>
+                <span class="comment-time">2天前广东</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">你好我报名了一家学习机构。我报名了考上了学校。机构要求一次性交学费。我也给了。但现在机构不给我交学费学校说我再不给就不给我读书了。怎么办啊</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@熊律在线</span>
+                <span class="comment-time">2天前湖北</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">你</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@NatashaFan</span>
+                <span class="comment-time">昨天 21:28山西</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">ZARA漏退款不说 开始讹诈了 以脏污为由拒退款 折扣季买了一堆衣服 漏退款 幸亏一个多月后自己翻看账单才发现</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@小莹爱吃柚子</span>
+                <span class="comment-time">3天前浙江</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">有一个家具促销会，然后被骗了五千，能不能举报</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@熊律在线</span>
+                <span class="comment-time">3天前湖北</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">踢</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@心宿</span>
+                <span class="comment-time">4天前江苏</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">我找人代做 PPT，结果他居然用 AI 给我做，8 页收了我 1288 元，让修改，对方不回应了</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@梦想幻想家(出租屋改造计划)</span>
+                <span class="comment-time">2天前山东</span>
+                <span class="comment-likes">👍1</span>
+                
+              </div>
+              <div class="comment-body">这样也就一两块钱一页的样子</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@小天使。</span>
+                <span class="comment-time">2025-12-27海南</span>
+                <span class="comment-likes">👍2</span>
+                
+              </div>
+              <div class="comment-body">证件照一直不通过</div>
+              
+            </div>
+            <div class="neg-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@熊律在线</span>
+                <span class="comment-time">2025-12-27湖北</span>
+                <span class="comment-likes">👍赞</span>
+                <span class="neg-label">⚠️ 负面</span>
+              </div>
+              <div class="comment-body">教育机构吗？</div>
+              <div class="ai-reason">🤖 评论者询问是否为教育机构，说明其将帖子内容与自身退费经历关联，暗示对奇奇学退费有疑虑或不满。</div>
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@小天使。</span>
+                <span class="comment-time">2025-12-27海南</span>
+                <span class="comment-likes">👍1</span>
+                
+              </div>
+              <div class="comment-body">国家信访局我一直登录不进去</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@熊律在线</span>
+                <span class="comment-time">2025-12-27湖北</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">不同时段尝试</div>
+              
+            </div>
+            <div class="normal-comment">
+              <div class="neg-comment-header">
+                <span class="comment-author">@是阿旺哟.</span>
+                <span class="comment-time">1天前江苏</span>
+                <span class="comment-likes">👍赞</span>
+                
+              </div>
+              <div class="comment-body">被刷单诈骗可以吗</div>
+              
+            </div>
+      </div>
+    </div>
+
+  <div class="footer">
+    <p>Generated by xhs-monitor (AI sentiment) · 2026-03-09T02:25:16.986Z</p>
+    <p>分析模型: qwen-turbo-latest · 数据来源：小红书</p>
+  </div>
+</body>
+</html>
