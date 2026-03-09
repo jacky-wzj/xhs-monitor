@@ -27,9 +27,20 @@ if (!fs.existsSync(dataFile)) {
 }
 
 const data = JSON.parse(fs.readFileSync(dataFile, 'utf8'));
-const notes = data.notes || [];
+const rawNotes = data.notes || [];
 
-console.log(`📊 读取 ${notes.length} 条笔记`);
+// 主体过滤：只保留标题或正文中包含"奇奇学"的笔记
+const notes = rawNotes.filter(n => {
+  const title = (n.title || '').toLowerCase();
+  const content = (n.content || '').toLowerCase();
+  const hasQiqixue = title.includes('奇奇学') || content.includes('奇奇学');
+  if (!hasQiqixue) {
+    console.log(`  🚫 过滤不相关笔记: ${(n.title || '无标题').substring(0, 40)}...`);
+  }
+  return hasQiqixue;
+});
+
+console.log(`📊 原始 ${rawNotes.length} 条，过滤后 ${notes.length} 条有效笔记（主体含"奇奇学"）`);
 
 // 复制截图到输出目录
 let screenshotCount = 0;
