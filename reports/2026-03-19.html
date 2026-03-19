@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>奇奇学 小红书舆情监控 — 2026-03-19</title>
+  <style>
+    :root {
+      --bg: #0f0f0f;
+      --card-bg: #1a1a1a;
+      --card-border: #2a2a2a;
+      --text: #e0e0e0;
+      --text-dim: #888;
+      --accent: #ff6b35;
+      --accent2: #4ecdc4;
+      --red: #ff4757;
+      --green: #2ed573;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "PingFang SC", "Microsoft YaHei", sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      padding: 20px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .header {
+      text-align: center;
+      padding: 30px 0;
+      border-bottom: 1px solid var(--card-border);
+      margin-bottom: 30px;
+    }
+    .header h1 {
+      font-size: 1.8em;
+      color: var(--accent);
+      margin-bottom: 8px;
+    }
+    .header .date { color: var(--text-dim); font-size: 1.1em; }
+    .summary {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+    .summary-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+    .summary-card .number {
+      font-size: 2em;
+      font-weight: 700;
+      color: var(--accent);
+    }
+    .summary-card .label { color: var(--text-dim); font-size: 0.9em; }
+    .section-title {
+      font-size: 1.4em;
+      color: var(--accent2);
+      margin: 30px 0 15px;
+      padding-bottom: 8px;
+      border-bottom: 2px solid var(--accent2);
+    }
+    .note-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: border-color 0.2s;
+    }
+    .note-card:hover { border-color: var(--accent); }
+    .note-header { padding: 16px 16px 8px; }
+    .note-header h3 { font-size: 1.1em; margin-bottom: 8px; }
+    .note-meta { display: flex; gap: 12px; flex-wrap: wrap; font-size: 0.85em; }
+    .note-meta .author { color: var(--accent2); }
+    .note-meta .likes { color: var(--red); }
+    .keyword-tag {
+      background: rgba(255, 107, 53, 0.15);
+      color: var(--accent);
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 0.8em;
+    }
+    .screenshot { padding: 8px 16px; }
+    .screenshot img {
+      width: 100%;
+      max-height: 400px;
+      object-fit: contain;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: max-height 0.3s;
+    }
+    .screenshot img.expanded { max-height: none; }
+    .note-content { padding: 8px 16px; }
+    .note-content p { color: var(--text-dim); font-size: 0.9em; }
+    .note-footer { padding: 8px 16px 12px; }
+    .note-footer a {
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.85em;
+    }
+    .note-footer a:hover { text-decoration: underline; }
+    .comments {
+      border-top: 1px solid var(--card-border);
+      padding: 12px 16px;
+    }
+    .comments-header {
+      font-size: 0.9em;
+      color: var(--accent2);
+      margin-bottom: 8px;
+    }
+    .comment {
+      padding: 6px 0;
+      border-bottom: 1px solid rgba(255,255,255,0.05);
+      font-size: 0.85em;
+    }
+    .comment-author { color: var(--accent); margin-right: 8px; }
+    .comment-content { color: var(--text-dim); }
+    .comment-likes { color: var(--text-dim); font-size: 0.8em; margin-left: 6px; }
+    .more-comments { color: var(--text-dim); font-size: 0.8em; padding-top: 6px; }
+    .top-notes { margin-bottom: 30px; }
+    .top-note-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 8px 12px;
+      background: var(--card-bg);
+      border-radius: 8px;
+      margin-bottom: 6px;
+    }
+    .top-note-item .rank {
+      font-size: 1.2em;
+      font-weight: 700;
+      color: var(--accent);
+      min-width: 30px;
+    }
+    .top-note-item .info { flex: 1; margin: 0 12px; }
+    .top-note-item .info .title { font-size: 0.9em; }
+    .top-note-item .info .author { font-size: 0.8em; color: var(--text-dim); }
+    .top-note-item .likes-count { color: var(--red); font-weight: 600; }
+    .footer {
+      text-align: center;
+      padding: 30px 0;
+      color: var(--text-dim);
+      font-size: 0.8em;
+      border-top: 1px solid var(--card-border);
+      margin-top: 30px;
+    }
+    @media (max-width: 600px) {
+      body { padding: 10px; }
+      .summary { grid-template-columns: repeat(2, 1fr); }
+      .header h1 { font-size: 1.4em; }
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🔍 奇奇学 · 小红书舆情监控</h1>
+    <div class="date">2026-03-19</div>
+  </div>
+
+  <div class="summary">
+    <div class="summary-card">
+      <div class="number">1</div>
+      <div class="label">监控笔记</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">18</div>
+      <div class="label">总点赞</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">0</div>
+      <div class="label">总评论</div>
+    </div>
+    <div class="summary-card">
+      <div class="number">1</div>
+      <div class="label">关键词命中</div>
+    </div>
+  </div>
+
+  <h2 class="section-title">🏆 热门 TOP5</h2>
+  <div class="top-notes">
+    
+      <div class="top-note-item">
+        <span class="rank">#1</span>
+        <div class="info">
+          <div class="title">谁懂啊😭 两周岁英语启蒙从0到认单词！</div>
+          <div class="author">@西少爷的日常 · 奇奇学</div>
+        </div>
+        <span class="likes-count">❤️ 18</span>
+      </div>
+    
+  </div>
+
+  
+      <h2 class="section-title">🔎 奇奇学 (1)</h2>
+      
+    <div class="note-card">
+      <div class="note-header">
+        <h3>1. 谁懂啊😭 两周岁英语启蒙从0到认单词！</h3>
+        <div class="note-meta">
+          <span class="author">👤 西少爷的日常</span>
+          <span class="likes">❤️ 18</span>
+          <span class="keyword-tag">奇奇学</span>
+        </div>
+      </div>
+      <div class="screenshot"><img src="../screenshots/2026-03-19/奇奇学_2.png" alt="截图" loading="lazy" onclick="this.classList.toggle('expanded')"></div>
+      <div class="note-content">
+        <p>Whoo！两周前我家娃还是完全没碰过英文的小白
+现在居然能认好多单词，图文还能一一对应✅
+作为一个本着不鸡娃原则的宝妈，真心分享两个启蒙关键！
+	
+❶ 学习兴趣永远是第1️⃣动力！
+选对工具真的能少走弯路！我们用的奇奇学牛津树套装，点读笔是小狗造型，我家娃走哪带哪，笔不离手～不用死记硬背，点读笔磨耳朵，先听懂有趣的小故事，慢慢就愿意开口跟读，学起来超轻松！
+	
+❷ 场景化记单词，娃才能真的懂！
+牛津树沉浸式点读太香了！点背景有环境音，点人物有对话音效，娃卡住还有双语提示，像学母语一样，把英文和画面绑在一起，见词能读、读后能懂✨
+我们不求娃多厉害，只希望他能在轻松的氛围里启蒙，既收获成长，也能感受到快乐和成就感
+	
+正在纠结娃英语启蒙、怕走弯路的宝妈，真的可以试试这套，亲测不踩雷！
+#幼儿英语启蒙 #英语启蒙 #奇奇学牛津树 #好物分享 #零基础英语启蒙 #点读笔 #英语分级#奇奇学 #牛津阅读树 #牛津树点读套装</p>
+      </div>
+      <div class="note-footer">
+        <a href="https://www.xiaohongshu.com/explore/69b90a4d000000001a021544" target="_blank" rel="noopener">🔗 查看原文</a>
+      </div>
+      
+    </div>
+  
+    
+
+  <div class="footer">
+    <p>Generated by xhs-monitor · 2026-03-19T03:58:50.376Z</p>
+    <p>数据来源：小红书 · 过滤了品牌官方号</p>
+  </div>
+</body>
+</html>
