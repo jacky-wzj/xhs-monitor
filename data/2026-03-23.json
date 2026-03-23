@@ -1,0 +1,34 @@
+{
+  "date": "2026-03-23",
+  "notes": [
+    {
+      "title": "",
+      "author": "是煜泽麻麻呀",
+      "likes": 0,
+      "url": "https://www.xiaohongshu.com/explore/69bcc332000000001a03616c",
+      "content": "谁有奇奇学的xu线上绘本资源呀",
+      "keyword": "奇奇学",
+      "date": "2天前 江西",
+      "scrapedAt": "2026-03-23T02:01:39.000Z",
+      "commentTotal": "共 2 条评论",
+      "comments": [
+        {
+          "author": "momo（打工版）",
+          "content": "我买了的",
+          "time": "2天前四川",
+          "location": "四川",
+          "likes": "赞"
+        },
+        {
+          "author": "是煜泽麻麻呀",
+          "content": "出吗",
+          "time": "2天前江西",
+          "location": "江西",
+          "likes": "赞"
+        }
+      ],
+      "screenshot": "/Users/niuniu/.openclaw/workspace/xiaohongshu/screenshots/2026-03-23/奇奇学_7.png"
+    }
+  ],
+  "total": 1
+}
